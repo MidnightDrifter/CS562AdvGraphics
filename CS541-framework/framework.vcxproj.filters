@@ -1,0 +1,182 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{fdb4a3f9-adcb-412a-a0c1-7e1a8d2ab706}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader Files">
+      <UniqueIdentifier>{b2549855-b95a-4fde-be6a-725c5b07710c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader Files\Original Shaders">
+      <UniqueIdentifier>{4bfc2d46-2283-4cae-8fb2-5f8e766db967}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{20021140-9a35-4bf4-9e03-b4365027cae7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader Files\BRDF &amp; Texture Shaders - Proj2">
+      <UniqueIdentifier>{15be3c80-03ae-448d-9d92-5786fcc71b72}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader Files\Shadow Shaders">
+      <UniqueIdentifier>{7040bacb-703d-4aae-bc89-4d5628721442}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader Files\Reflection Shaders">
+      <UniqueIdentifier>{c38f7fde-e7f4-4f53-94ca-f7898b790c4e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader Files\Reflection Shaders\Top">
+      <UniqueIdentifier>{47d8a7d9-5d9f-496d-bbc3-72184fba8d60}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader Files\Reflection Shaders\Bot">
+      <UniqueIdentifier>{a8b380c0-ebdc-4684-af87-a4648cd0bb27}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader Files\gBuffer">
+      <UniqueIdentifier>{d421640c-3100-4b07-a6c9-d2f9ab121ba4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader Files\gBuffer\Creation of gBuffer">
+      <UniqueIdentifier>{353fcdac-07c1-4390-8846-1c266a748522}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader Files\gBuffer\Global Lighting">
+      <UniqueIdentifier>{921af10e-e69c-42ea-8239-f428ceddf79e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader Files\gBuffer\Ambient Lighting">
+      <UniqueIdentifier>{e41cf54b-7dfd-4e42-aa48-377ea85056cb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader Files\gBuffer\Local Lighting">
+      <UniqueIdentifier>{7b652f6a-bca5-4acc-b5b4-749fed942c18}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader Files\Basic Output Shaders">
+      <UniqueIdentifier>{985da306-68ba-4fd4-b110-977c818570a4}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="framework.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="interact.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="object.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="scene.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="shader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="shapes.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="simplexnoise.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="transform.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="rply.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fbo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="framework.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="interact.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="object.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rply.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="scene.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="shader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="shapes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="simplexnoise.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="transform.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fbo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="lighting.frag">
+      <Filter>Shader Files\Original Shaders</Filter>
+    </None>
+    <None Include="lighting.vert">
+      <Filter>Shader Files\Original Shaders</Filter>
+    </None>
+    <None Include="lighting-BRDF&amp;Texture Proj2.frag">
+      <Filter>Shader Files\BRDF &amp; Texture Shaders - Proj2</Filter>
+    </None>
+    <None Include="lighting-BRDF&amp;Texture Proj2.vert">
+      <Filter>Shader Files\BRDF &amp; Texture Shaders - Proj2</Filter>
+    </None>
+    <None Include="shadowProj3.frag">
+      <Filter>Shader Files\Shadow Shaders</Filter>
+    </None>
+    <None Include="shadowProj3.vert">
+      <Filter>Shader Files\Shadow Shaders</Filter>
+    </None>
+    <None Include="reflectionShaderBot.frag">
+      <Filter>Shader Files\Reflection Shaders\Bot</Filter>
+    </None>
+    <None Include="reflectionShaderBot.vert">
+      <Filter>Shader Files\Reflection Shaders\Bot</Filter>
+    </None>
+    <None Include="reflectionShaderTop.frag">
+      <Filter>Shader Files\Reflection Shaders\Top</Filter>
+    </None>
+    <None Include="reflectionShaderTop.vert">
+      <Filter>Shader Files\Reflection Shaders\Top</Filter>
+    </None>
+    <None Include="gBufferGlobalLighting.frag">
+      <Filter>Shader Files\gBuffer\Global Lighting</Filter>
+    </None>
+    <None Include="gBufferGlobalLighting.vert">
+      <Filter>Shader Files\gBuffer\Global Lighting</Filter>
+    </None>
+    <None Include="gBuffer.frag">
+      <Filter>Shader Files\gBuffer\Creation of gBuffer</Filter>
+    </None>
+    <None Include="gBuffer.vert">
+      <Filter>Shader Files\gBuffer\Creation of gBuffer</Filter>
+    </None>
+    <None Include="gBufferAmbientLighting.frag">
+      <Filter>Shader Files\gBuffer\Ambient Lighting</Filter>
+    </None>
+    <None Include="gBufferAmbientLighting.vert">
+      <Filter>Shader Files\gBuffer\Ambient Lighting</Filter>
+    </None>
+    <None Include="gBufferLocalLighting.frag">
+      <Filter>Shader Files\gBuffer\Local Lighting</Filter>
+    </None>
+    <None Include="gBufferLocalLighting.vert">
+      <Filter>Shader Files\gBuffer\Local Lighting</Filter>
+    </None>
+    <None Include="basicOutputShader.frag">
+      <Filter>Shader Files\Basic Output Shaders</Filter>
+    </None>
+    <None Include="basicOutputShader.vert">
+      <Filter>Shader Files\Basic Output Shaders</Filter>
+    </None>
+  </ItemGroup>
+</Project>
