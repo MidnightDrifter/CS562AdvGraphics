@@ -26,11 +26,16 @@ uniform sampler2D gBuffer0;  //WorldPos.xyz, worldPosDepth
 uniform sampler2D gBuffer1;  //specular.xyz, shininess
 uniform sampler2D gBuffer2;  //diffuse.xyz
 uniform sampler2D gBuffer3;  //normalVec.xyz
+
+
+uniform sampler2D skydomeTexture;
+
 uniform vec3 ambient;
 
 uniform int width;
 uniform int height;
 
+uniform mat4 WorldInverse;
 
 void main()
 {
@@ -67,6 +72,40 @@ void main()
 //	gl_FragColor.xyz = diffuse;
 //	gl_FragColor.xyz = specular;
 //  gl_FragColor.xyz = worldPos.xyz;
+
+
+
+
+
+if(gBuffer.w == skyId)
+{
+
+	vec2 myPixelCoordinate = vec2(gl_FragCoord.x/ width, gl_FragCoord.y/height);  
+
+	vec3 worldPos = texture2D(gBuffer0,myPixelCoordinate).xyz;
+		
+		vec3 V = normalize((WorldInverse * vec4(0.f, 0.f, 0.f, 1.f)).xyz-worldPos);
+
+
+
+
+		
+vec3 D = -1*V;
+//vec3 D = V;
+//vec2 skyTexCoord= vec2(0.5f - atan(D.y,D.x), -acos(D.z)/PI);  //Flip the acos to flip the skydome
+
+
+vec2 skyTexCoord= vec2(0.5f - atan(D.y,D.x)/(2*PI), -acos(D.z)/PI);  //Flip this to flip skysphere
+vec3 skyColor = texture(skydomeTexture,skyTexCoord).xyz;
+
+//skyColor = vec3(1.f,0.f,0.f);
+
+gl_FragColor.xyz = skyColor; //  Check this  ???
+return;
+
+}
+
+
   gl_FragColor.xyz = ambient;
 
 

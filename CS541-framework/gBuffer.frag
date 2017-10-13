@@ -303,7 +303,7 @@ outLight = skyColor; //  Check this  ???
    gl_FragData[0] =  worldPos;  //vec4(worldPos.xyz, worldPosDepth);
     gl_FragData[1] = vec4(specular.xyz, shininess);
 	 gl_FragData[2] = vec4(Kd.xyz, 0.f);
-	  gl_FragData[3] = vec4(N.xyz,0.f);
+	  gl_FragData[3] = vec4(N.xyz,objectId);
 	  
 
 //gl_FragColor.xyz = worldPos.xyz;

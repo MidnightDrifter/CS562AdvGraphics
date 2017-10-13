@@ -213,6 +213,18 @@ void Scene::InitializeScene()
 	reflectionProgramBot->LinkProgram();
 
 	*/
+	
+	shadowBlurComputeShader = new ShaderProgram();
+	shadowBlurComputeShader->AddShader("shadowBlurCompute.comp", GL_COMPUTE_SHADER);
+
+
+	shadowBlurComputeShader->LinkProgram();
+	
+	
+	
+	
+	
+	
 	gBufferShader = new ShaderProgram();
 
 	gBufferShader->AddShader("gBuffer.vert", GL_VERTEX_SHADER);
@@ -298,6 +310,10 @@ void Scene::InitializeScene()
 
 	reflectionTextureBot = new FBO();
 	reflectionTextureBot->CreateFBO(1024, 1024);
+
+
+	blurredShadowTexture = new FBO();
+	blurredShadowTexture->CreateFBO(1024, 1024);
 
 	gBuffer = new FBO();
 	gBuffer->CreateGBuffer(width, height);
@@ -407,6 +423,17 @@ void Scene::InitializeScene()
 	glBlendFunc(GL_ONE, GL_ONE);
 	CHECKERROR
 	//glBlendEquation(GL_FUNC_ADD);
+
+
+
+
+		for (int i = -kernelWidth / 2; i <= kernelWidth / 2; i++)
+		{
+			kernelWeights[i] = powf(e, (-0.5f *  (i / s) * (i / s)));
+		}
+
+
+	//NEED TO NORMALIZE THESE TO SUM TO 1 LATER!!
 
 
     CHECKERROR;
@@ -813,6 +840,16 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			loc = glGetUniformLocation(programId, "ambient");
 			glUniform3fv(loc, 1, &(ambientLight[0]));
 
+
+			loc = glGetUniformLocation(programId, "WorldInverse");
+			glUniformMatrix4fv(loc, 1, GL_TRUE, WorldInverse.Pntr());
+
+
+
+			skydome->Bind(5);
+			loc = glGetUniformLocation(programId, "skydomeTexture");
+			glUniform1i(loc, 5);
+
 			//Start 'pass gBuffer to specified shader' block
 
 			glActiveTexture(GL_TEXTURE6);
@@ -937,6 +974,19 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			//End 'pass gBuffer to specified shader' block
 
 			CHECKERROR;
+
+
+			loc1 = glGetUniformLocation(programID1, "c");
+			glUniform1i(loc1, shadowConstant);
+
+
+
+			loc1 = glGetUniformLocation(programID1, "minDepth");
+			glUniform1f(loc1, minDepth);
+
+
+			loc1 = glGetUniformLocation(programID1, "maxDepth");
+			glUniform1f(loc1, maxDepth);
 			// Compute any continuously animating objects
 
 			glEnable(GL_CULL_FACE);
@@ -954,6 +1004,59 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			//End Shadow Depth test pass
 			
 			
+
+
+			shadowBlurComputeShader->Use();
+			programId = shadowBlurComputeShader->programId;
+			
+			
+		//	blurredShadowTexture->Bind();
+
+
+			GLuint blockID;
+			glGenBuffers(1, &blockID); // Generates block
+			int	bindpoint = 0; // Start at zero, increment for other blocks
+				loc = glGetUniformBlockIndex(programId, "blurKernel");
+				glUniformBlockBinding(programId, loc, bindpoint);
+				glBindBufferBase(GL_UNIFORM_BUFFER, bindpoint, blockID);
+				glBufferData(GL_UNIFORM_BUFFER, kernelWidth * sizeof(float), &kernelWeights[0], GL_STATIC_DRAW);
+
+
+
+				int imageUnit = 0;  //Increment for other images
+				loc = glGetUniformLocation(programId, "src");
+				glBindImageTexture(imageUnit, shadowTexture->texture, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);
+				glUniform1i(loc, imageUnit);
+					// Change GL_READ_ONLY to GL_WRITE_ONLY for output image
+					// Change GL_R32F to GL_RGBA32F for 4 channel images
+
+				imageUnit++;
+
+				loc = glGetUniformLocation(programId, "dst");
+				glBindImageTexture(imageUnit, blurredShadowTexture->texture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);
+				glUniform1i(loc, imageUnit);
+
+
+
+				loc = glGetUniformLocation(programId, "w");
+				glUniform1i(loc, kernelWidth / 2);
+
+				loc = glGetUniformLocation(programId, "minDepth");
+				glUniform1f(loc, minDepth);
+
+
+				loc = glGetUniformLocation(programId, "maxDepth");
+				glUniform1f(loc, maxDepth);
+
+
+				loc = glGetUniformLocation(programId, "c");
+				glUniform1i(loc, shadowConstant);
+
+
+			glDispatchCompute(width / 128, height, 1); // Tiles WxH image with groups sized 128x1
+		//	shadowTexture->Unbind();
+			shadowBlurComputeShader->Unuse();
+
 
 
 			
@@ -982,7 +1085,8 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
 			glActiveTexture(GL_TEXTURE3);
-			glBindTexture(GL_TEXTURE_2D, shadowTexture->texture);
+			//glBindTexture(GL_TEXTURE_2D, shadowTexture->texture);
+			glBindTexture(GL_TEXTURE_2D, blurredShadowTexture->texture);
 			loc = glGetUniformLocation(programId, "shadowTexture");
 			glUniform1i(loc, 3);
 
@@ -1040,6 +1144,11 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			loc1 = glGetUniformLocation(programId, "height");
 			glUniform1i(loc1,height);
 	//		CHECKERROR;
+
+
+
+			loc1 = glGetUniformLocation(programId, "c");
+			glUniform1i(loc1, shadowConstant);
 
 			//End 'pass gBuffer to specified shader' block
 			FSQ->Draw(gBufferGlobalLighting, Identity);

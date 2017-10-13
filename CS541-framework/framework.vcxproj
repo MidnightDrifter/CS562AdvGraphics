@@ -55,6 +55,7 @@
     <None Include="reflectionShaderBot.vert" />
     <None Include="reflectionShaderTop.frag" />
     <None Include="reflectionShaderTop.vert" />
+    <None Include="shadowBlurCompute.comp" />
     <None Include="shadowProj3.frag" />
     <None Include="shadowProj3.vert" />
   </ItemGroup>

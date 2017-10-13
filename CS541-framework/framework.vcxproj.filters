@@ -46,6 +46,9 @@
     <Filter Include="Shader Files\Basic Output Shaders">
       <UniqueIdentifier>{985da306-68ba-4fd4-b110-977c818570a4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shader Files\Shadow Blur Compute Shader">
+      <UniqueIdentifier>{9167e7ce-329e-4746-9275-06050d890d4f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="framework.cpp">
@@ -177,6 +180,9 @@
     </None>
     <None Include="basicOutputShader.vert">
       <Filter>Shader Files\Basic Output Shaders</Filter>
+    </None>
+    <None Include="shadowBlurCompute.comp">
+      <Filter>Shader Files\Shadow Blur Compute Shader</Filter>
     </None>
   </ItemGroup>
 </Project>

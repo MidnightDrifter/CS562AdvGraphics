@@ -35,6 +35,7 @@ uniform sampler2D shadowTexture;
 
 uniform int width;
 uniform int height;
+uniform float minDepth, maxDepth;
 
 //uniform mat4 ShadowMatrix, WorldInverse;
 //uniform sampler2D shadowTexture;
@@ -158,6 +159,14 @@ return;
 */
 
 
+float filteredDepth = (texture(shadowTexture,shadowIndex)-minDepth) / (maxDepth-minDepth);
+float shadowFactor = filteredDepth * exp(e,-c*shadowCoord.w);
+
+if(shadowFactor>1)
+{
+	shadowFactor=1;
+}
+/*
 	//SHADOW STUFF
 	if(shadowCoord.w >0 && shadowIndex.x <= 1 && shadowIndex.x >= 0 && shadowIndex.y <= 1 && shadowIndex.y >= 0  &&((shadowCoord.w - texture(shadowTexture,shadowIndex).w) > EPSILON))
 {
@@ -175,6 +184,16 @@ else
 {
 	gl_FragColor.xyz = LN*Light*BRDF(N,L,V,shininess,specular, diffuse);
 }
+*/
+
+if(shadowFactor < EPSILON)
+{
+gl_FragColor.xyz=vec3(0,0,0);
+return;
+}
+
+
+gl_FragColor.xyz = shadowFactor*Light*BRDF(N,L,V,shininess,specular, diffuse);
 
 
 }

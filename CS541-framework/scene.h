@@ -98,14 +98,26 @@ public:
 	  //So much reorganizing!
 									
 	// Shader programs
-    ShaderProgram* lightingProgram, *shadowProgram, *reflectionProgramTop, *reflectionProgramBot, *gBufferShader, *gBufferGlobalLighting, *gBufferAmbientLighting, *gBufferLocalLighting, *basicOutputShader;
+    ShaderProgram* lightingProgram, *shadowProgram, *reflectionProgramTop, *reflectionProgramBot, *gBufferShader, *gBufferGlobalLighting, *gBufferAmbientLighting, *gBufferLocalLighting, *basicOutputShader, *shadowBlurComputeShader;
 
 	//FBOs
-	FBO* shadowTexture,* reflectionTextureTop,* reflectionTextureBot, *gBuffer, *screenOutput;
+	FBO* shadowTexture,* reflectionTextureTop,* reflectionTextureBot, *gBuffer, *screenOutput, *blurredShadowTexture;
 
 	//Textures - testin'
 	Texture* test;
 	Texture *bricksNormalTexture,* bricksTexture, *skydome;
+
+	const float e = 2.7182818284590452353602874713527;
+	const static int kernelWidth = 25;
+	const float s = kernelWidth / 2.f;
+	float kernelWeights[kernelWidth];// = new int[kernelWidth];
+	
+
+
+	float minDepth = 0.5f;
+
+	float maxDepth = 50.f;
+
 
 
 	Object* FSQ; //Full screen quad
