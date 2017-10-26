@@ -11,33 +11,45 @@ layout(local_size_x = 128, local_size_y=1,local_size_z=1) in;
 //Declares thread group size
 
 //uniform image src, dst;   //Source & destination images / textures
-uniform float w, maxDepth, minDepth;   //kernelSize/2
+uniform float  maxDepth, minDepth;   //kernelSize/2
 //uniform block weights;   //Kernel weights themselves -- how do I declare this in shader??
+uniform int w;  //kernelSize/2
+uniform blurKernel{float weights[101];};  //Declares uniform block
 
-uniform blurKernel{float weights[101];}  //Declares uniform block
 
+layout(r32f) uniform readonly image2D src; // src image as single channel 32bit float readonly
 
-layout (r32f) uniform readonly image2D src; // src image as single channel 32bit float readonly
-
-layout (r32f) uniform writeonly image2D dst; // dst image as single channel 32bit float writeonly
+layout(r32f) uniform writeonly image2D dst; // dst image as single channel 32bit float writeonly
 
 shared float v[128+101]; // Variable shared with other threads in the 128x1 thread group
 
 void main() {
 //...
-ivec2 gpos = ivec2(gl_GlobalInvocationID.xy); // Combo of groupID, groupSize and localID
-int i = gl_LocalInvocationID.x; // Local thread id in the 128x1 thread groups128x1
-v[i] = imageLoad(src, gpos+ivec2(-w,0)); // read an image pixel at an ivec2(.,.) position
-if (i<2*w) v[i+128] = imageLoad(src, gpos+ivec2(128-w,0)); // read extra 2*w pixels
+//HORIZONTAL WEIGHTS
+ivec2 gpos = ivec2(gl_GlobalInvocationID.xy); // Combo of groupID, groupSize and localID	
+uint i = gl_LocalInvocationID.x; // Local thread id in the 128x1 thread groups128x1
+v[i] = imageLoad(src, gpos+ivec2(-w,0)).w; // read an image pixel at an ivec2(.,.) position
+if (i<2*w) v[i+128] = imageLoad(src, gpos+ivec2(128-w,0)).w; // read extra 2*w pixels
 barrier(); // Wait for all threads to catchup before reading v[]
 //…
 float sum=0;
-for(int j =0;j<=2*w;j++)
+for(int j = -w;j<=w;j++)
 {
-sum+= blurKernel[j] * v[i+j];    //Multiply weight * pixel value--assuming blurKernel is the set of weights??
+sum+= weights[j+w] * v[i+j];    //Multiply weight * pixel value--assuming blurKernel is the set of weights??
+}
+
+
+//VERTICAL WEIGHTS
+v[i] = imageLoad(src,gpos+ivec2(0,-w)).w;
+if(i<2*w) v[i+128] = imageLoad(src,gpos+ivec2(0,128-w)).w;  //Read extra 2*w pixels;
+barrier();
+for(int k=-w;k<=w;k++)
+{
+sum+=weights[k+w]*v[i+k];
 }
 
 
 
-imageStore(dst, gpos, sum); // Write to destination image
+//imageStore(dst, gpos, vec4(sum,sum,sum,sum)); // Write to destination image
+imageStore(dst,gpos,vec4(0.5,0.5,0.5,0.5));
 }

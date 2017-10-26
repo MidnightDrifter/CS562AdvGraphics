@@ -28,6 +28,7 @@ const float e = 2.7182818284590452353602874713527;
 
 in vec4 pos;
 uniform float maxDepth, minDepth;
+uniform int c;
 void main()
 {
   //  vec3 N = normalize(normalVec);
@@ -44,7 +45,7 @@ void main()
 	
 	float depth = (pos.w - minDepth)/(maxDepth-minDepth);
 
-	gl_FragData[0]=vec4(pos.xyz,exp(e,c*depth));
+	gl_FragData[0]=vec4(pos.xyz,exp(c*depth));
 	
 	
 	

@@ -109,14 +109,13 @@ public:
 
 	const float e = 2.7182818284590452353602874713527;
 	const static int kernelWidth = 25;
-	const float s = kernelWidth / 2.f;
-	float kernelWeights[kernelWidth];// = new int[kernelWidth];
-	
+	const int s = kernelWidth / 2;
+	float kernelWeights[kernelWidth];
 
 
-	float minDepth = 0.5f;
+	float minDepth = 0.01f;
 
-	float maxDepth = 50.f;
+	float maxDepth = 40.f;
 
 
 

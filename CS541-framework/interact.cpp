@@ -41,6 +41,7 @@ void ReshapeWindow(int w, int h)
 	{
 	//	delete scene.gBuffer;
 	//	scene.gBuffer = new FBO();
+//		scene.gBuffer->Unbind();
 		scene.gBuffer->CreateGBuffer(w, h);
 
 	}

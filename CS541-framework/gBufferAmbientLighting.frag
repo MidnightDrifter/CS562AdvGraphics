@@ -15,7 +15,7 @@ const int     lPicId	= 7;
 const int     rPicId	= 8;
 const int     teapotId	= 9;
 const int     spheresId	= 10;
-
+const float PI = 3.1415926535897932384626433832795;
 //in vec3 normalVec, lightVec;
 //in vec2 texCoord;
 
@@ -52,7 +52,7 @@ void main()
   //  gl_FragColor.xyz = vec3(0.5,0.5,0.5)*Kd + Kd*max(dot(L,N),0.0);
 
 
- //	vec2 myPixelCoordinate = vec2(gl_FragCoord.x/width, gl_FragCoord.y/height);  //I forget the call for this fug
+ 	vec2 myPixelCoordinate = vec2(gl_FragCoord.x/width, gl_FragCoord.y/height);  //I forget the call for this fug
 	
 //	vec3 worldPos = texture2D(gBuffer0,myPixelCoordinate).xyz;
 //	float  worldPosDepth = texture2D(gBuffer0,myPixelCoordinate).w;
@@ -77,7 +77,7 @@ void main()
 
 
 
-if(gBuffer.w == skyId)
+if(texture2D(gBuffer3,myPixelCoordinate).w == skyId)
 {
 
 	vec2 myPixelCoordinate = vec2(gl_FragCoord.x/ width, gl_FragCoord.y/height);  
