@@ -341,8 +341,11 @@ void Scene::InitializeScene()
 	reflectionTextureBot->CreateFBO(1024, 1024);
 
 
-	blurredShadowTexture = new FBO();
-	blurredShadowTexture->CreateFBO(1024, 1024);
+	//shadowBlurPureTexture = new FBO();
+	//shadowBlurPureTexture->CreateFBO(1024, 1024);
+
+	shadowBlurPureTexture = new Texture(1024, 1024);
+
 
 	gBuffer = new FBO();
 	gBuffer->CreateGBuffer(width, height);
@@ -404,9 +407,18 @@ void Scene::InitializeScene()
 	}
 
 	*/
+ MAT4 localLightRadiusMat = Scale(localLightRadius, localLightRadius, localLightRadius);
 
  Object* lightSphere = new Object(SpherePolygons, localLightsId, vec3(0, 0, 0), vec3(0, 0, 0), 1.f);
- localLights->add(lightSphere, Scale(localLightRadius, localLightRadius, localLightRadius));
+ localLights->add(lightSphere, localLightRadiusMat);
+
+ for (int i = 0; i < numLocalLights; i++)
+ {
+	 Object* bob = new Object(SpherePolygons, localLightsId, vec3(0, 0, 0), vec3(0, 0, 0), 1.f);
+	 localLights->add(bob, Translate(i-(numLocalLights/2), 0, 0) * localLightRadiusMat);
+ }
+
+
  //Just one local light for sanity check
 
 
@@ -1036,7 +1048,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			programId = shadowBlurComputeShader->programId;
 			
 			
-		//	blurredShadowTexture->Bind();
+		//	shadowBlurPureTexture->Bind();
 			CHECKERROR;
 
 			GLuint blockID;
@@ -1049,7 +1061,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				CHECKERROR;
 
 
-				GLint imageUnit = 1;  //Increment for other images
+				GLint imageUnit = 2;  //Increment for other images
 				loc = glGetUniformLocation(programId, "src");
 				glBindImageTexture(imageUnit, shadowTexture->texture, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);
 				glUniform1i(loc, imageUnit);
@@ -1059,7 +1071,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				imageUnit++;
 				CHECKERROR;
 				loc = glGetUniformLocation(programId, "dst");
-				glBindImageTexture(imageUnit, blurredShadowTexture->texture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);
+				glBindImageTexture(imageUnit, shadowBlurPureTexture->textureId, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);
 				glUniform1i(loc, imageUnit);
 				CHECKERROR;
 
@@ -1112,8 +1124,8 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
 			glActiveTexture(GL_TEXTURE3);
-			glBindTexture(GL_TEXTURE_2D, blurredShadowTexture->texture);
-			//glBindTexture(GL_TEXTURE_2D, blurredShadowTexture->texture);
+			glBindTexture(GL_TEXTURE_2D, shadowTexture->texture);
+			//glBindTexture(GL_TEXTURE_2D, shadowBlurPureTexture->texture);
 			CHECKERROR;
 			
 			loc = glGetUniformLocation(programId, "shadowTexture");

@@ -90,8 +90,8 @@ public:
 	Object* objectRootNoTeapot;
     std::vector<Object*> animated;
 	Object* localLights;
-	int numLocalLights = 250;
-	float localLightRadius = 15.f;  //Likely assume that, for each light, their sphere of influence is approx. their radius or some multiple of it
+	int numLocalLights = 1000;
+	float localLightRadius = 30.f;  //Likely assume that, for each light, their sphere of influence is approx. their radius or some multiple of it
 	int shadowConstant = 60;  //C value for exponential shadow map
 	vec3 lightColor = vec3(PI, PI, PI);
 	vec3 localLightColor = vec3(PI , PI/8 ,PI/8  ); /// vec3(numLocalLights, numLocalLights, numLocalLights);
@@ -106,6 +106,7 @@ public:
 	//Textures - testin'
 	Texture* test;
 	Texture *bricksNormalTexture,* bricksTexture, *skydome;
+	Texture* shadowBlurPureTexture;
 
 	const float e = 2.7182818284590452353602874713527;
 	const static int kernelWidth = 25;

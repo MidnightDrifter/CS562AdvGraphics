@@ -12,6 +12,11 @@ class Texture
  public:
     unsigned int textureId;
     
+
+	//Sean added this
+	Texture(int width, int height);
+
+
     Texture(const std::string &filename);
     void Bind(const int unit);
     void Unbind();

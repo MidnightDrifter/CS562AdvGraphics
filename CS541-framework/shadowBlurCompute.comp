@@ -17,9 +17,9 @@ uniform int w;  //kernelSize/2
 uniform blurKernel{float weights[101];};  //Declares uniform block
 
 
-layout(r32f) uniform readonly image2D src; // src image as single channel 32bit float readonly
+layout(r32f, binding =1) uniform readonly image2D src; // src image as single channel 32bit float readonly
 
-layout(r32f) uniform writeonly image2D dst; // dst image as single channel 32bit float writeonly
+layout(r32f, binding =2) uniform writeonly image2D dst; // dst image as single channel 32bit float writeonly
 
 shared float v[128+101]; // Variable shared with other threads in the 128x1 thread group
 
@@ -49,7 +49,11 @@ sum+=weights[k+w]*v[i+k];
 }
 
 
-
 //imageStore(dst, gpos, vec4(sum,sum,sum,sum)); // Write to destination image
 imageStore(dst,gpos,vec4(0.5,0.5,0.5,0.5));
+
+imageStore(dst,gpos,vec4(sum,sum,sum,sum));
+//imageStore(dst,gpos,vec4(1,1,1,1));
+
+
 }

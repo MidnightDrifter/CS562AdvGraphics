@@ -18,6 +18,22 @@ using namespace gl;
 #define STBI_FAILURE_USERMSG
 #include "stb_image.h"
 
+Texture::Texture(int width, int height) : textureId(1)
+{
+	
+
+	glGenTextures(1, &textureId);   // Get an integer id for thi texture from OpenGL
+	glBindTexture(GL_TEXTURE_2D, textureId);
+	glTexImage2D(GL_TEXTURE_2D, 0, 4, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 100);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, (int)GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (int)GL_LINEAR_MIPMAP_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+
+
 Texture::Texture(const std::string &path) : textureId(0)
 {
     stbi_set_flip_vertically_on_load(true);
