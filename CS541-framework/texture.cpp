@@ -18,7 +18,7 @@ using namespace gl;
 #define STBI_FAILURE_USERMSG
 #include "stb_image.h"
 
-Texture::Texture(int width, int height) : textureId(1)
+Texture::Texture(int width, int height) : textureId(0)
 {
 	
 

@@ -127,17 +127,17 @@ void Scene::InitializeScene()
 
 	for (int i = -kernelWidth / 2; i <= kernelWidth / 2; i++)
 	{
-		kernelWeights[(i + kernelWidth / 2)] = exp( ((-i*i) / (2.f*s*s)));
+		kernelWeights.push_back( exp( ((-i*i) / (2.f*s*s))));
 		//sum += kernelWeights[(i + kernelWidth / 2)];
 		
 	}
 
-	for (int i = 0; i < (2 * kernelWidth + 1); i++)
+	for (int i = 0; i < kernelWeights.size(); i++)
 	{
 		sum += kernelWeights[i];
 	}
 
-	for (int i = 0; i < 2 * kernelWidth + 1; i++)
+	for (int i = 0; i < kernelWeights.size(); i++)
 	{
 		kernelWeights[i] = kernelWeights[i]/ sum;
 	}
@@ -341,8 +341,8 @@ void Scene::InitializeScene()
 	reflectionTextureBot->CreateFBO(1024, 1024);
 
 
-	//shadowBlurPureTexture = new FBO();
-	//shadowBlurPureTexture->CreateFBO(1024, 1024);
+	blurredShadowTexture = new FBO();
+	blurredShadowTexture->CreateFBO(1024, 1024);
 
 	shadowBlurPureTexture = new Texture(1024, 1024);
 
@@ -1057,13 +1057,13 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				loc = glGetUniformBlockIndex(programId, "blurKernel");
 				glUniformBlockBinding(programId, loc, bindpoint);
 				glBindBufferBase(GL_UNIFORM_BUFFER, bindpoint, blockID);
-				glBufferData(GL_UNIFORM_BUFFER, kernelWidth * sizeof(float), &kernelWeights[0], GL_STATIC_DRAW);
+				glBufferData(GL_UNIFORM_BUFFER, kernelWidth * sizeof(float), (kernelWeights.data()), GL_STATIC_DRAW);
 				CHECKERROR;
 
 
-				GLint imageUnit = 2;  //Increment for other images
+				GLint imageUnit = 1;  //Increment for other images
 				loc = glGetUniformLocation(programId, "src");
-				glBindImageTexture(imageUnit, shadowTexture->texture, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);
+				glBindImageTexture(imageUnit, shadowTexture->texture, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
 				glUniform1i(loc, imageUnit);
 					// Change GL_READ_ONLY to GL_WRITE_ONLY for output image
 					// Change GL_R32F to GL_RGBA32F for 4 channel images
@@ -1071,7 +1071,8 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				imageUnit++;
 				CHECKERROR;
 				loc = glGetUniformLocation(programId, "dst");
-				glBindImageTexture(imageUnit, shadowBlurPureTexture->textureId, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);
+			//	glBindImageTexture(imageUnit, shadowBlurPureTexture->textureId, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+				glBindImageTexture(imageUnit, blurredShadowTexture->texture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 				glUniform1i(loc, imageUnit);
 				CHECKERROR;
 
@@ -1124,8 +1125,9 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
 			glActiveTexture(GL_TEXTURE3);
-			glBindTexture(GL_TEXTURE_2D, shadowTexture->texture);
-			//glBindTexture(GL_TEXTURE_2D, shadowBlurPureTexture->texture);
+		//	glBindTexture(GL_TEXTURE_2D, shadowTexture->texture);
+		//	glBindTexture(GL_TEXTURE_2D, shadowBlurPureTexture->textureId);
+			glBindTexture(GL_TEXTURE_2D, blurredShadowTexture->texture);
 			CHECKERROR;
 			
 			loc = glGetUniformLocation(programId, "shadowTexture");
@@ -1186,7 +1188,13 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glUniform1i(loc1,height);
 	//		CHECKERROR;
 
+			loc1 = glGetUniformLocation(programId, "minDepth");
+			glUniform1f(loc1, Scene::minDepth);
+			CHECKERROR;
 
+			loc1 = glGetUniformLocation(programId, "maxDepth");
+			glUniform1f(loc1, Scene::maxDepth);
+			CHECKERROR;
 
 			loc1 = glGetUniformLocation(programId, "c");
 			glUniform1i(loc1, shadowConstant);
@@ -1215,7 +1223,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		//	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 			
-
+			/*
 
 			gBufferLocalLighting->Use();
 			glDisable(GL_DEPTH_TEST);
@@ -1310,7 +1318,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			//End local lighting pass
 			
 			glDisable(GL_BLEND);
-
+*/
 
 /*
 

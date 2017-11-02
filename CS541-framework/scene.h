@@ -16,6 +16,7 @@
 #include "object.h"
 #include "texture.h"
 #include "fbo.h"
+#include <vector>
 
 
 enum ObjectIds {
@@ -108,19 +109,22 @@ public:
 	Texture *bricksNormalTexture,* bricksTexture, *skydome;
 	Texture* shadowBlurPureTexture;
 
+
+	const float minDepth = 0.1f;
+
+	const float maxDepth = 1000.f;
+
+	Object* FSQ;
+
 	const float e = 2.7182818284590452353602874713527;
 	const static int kernelWidth = 25;
 	const int s = kernelWidth / 2;
-	float kernelWeights[kernelWidth];
-
-
-	float minDepth = 0.01f;
-
-	float maxDepth = 40.f;
+	std::vector<float> kernelWeights;
 
 
 
-	Object* FSQ; //Full screen quad
+
+ //Full screen quad
 
     //void append(Object* m) { objects.push_back(m); }
 

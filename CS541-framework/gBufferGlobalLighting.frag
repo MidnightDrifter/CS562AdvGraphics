@@ -37,7 +37,8 @@ uniform sampler2D shadowTexture;
 
 uniform int width;
 uniform int height;
-uniform float minDepth, maxDepth;
+uniform float minDepth;
+uniform float maxDepth;
 uniform int c;
 //uniform mat4 ShadowMatrix, WorldInverse;
 //uniform sampler2D shadowTexture;
@@ -160,10 +161,23 @@ return;
 }
 */
 float normPixDepth = (shadowCoord.w - minDepth) / (maxDepth-minDepth);
-//float normLightDepth = (texture(shadowTexture,shadowIndex).w-minDepth) / (maxDepth-minDepth);
+float normLightDepth = (texture(shadowTexture,shadowIndex).w-minDepth) / (maxDepth-minDepth);
+
 
 //float filteredDepth = (texture(shadowTexture,shadowIndex).w-minDepth) / (maxDepth-minDepth);
 float shadowFactor =   texture2D(shadowTexture,shadowIndex).w * exp(-c*normPixDepth);         //normPixDepth * exp(-c*normPixelDepth);
+
+//shadowFactor = texture2D(shadowTexture,shadowIndex).w * exp(-1*c*normPixDepth);
+shadowFactor = min(1,shadowFactor);
+
+gl_FragColor.xyz = shadowFactor * LN*Light*BRDF(N,L,V,shininess,specular, diffuse);
+
+//gl_FragColor.xyz = vec3(normLightDepth);
+return;
+
+//return;
+
+
 /*
 if(texture2D(shadowTexture,shadowIndex).w ==0)
 {
@@ -198,7 +212,7 @@ gl_FragColor.xyz = vec3(1,0.5,0);
 //return;
 }
 
-*/
+
 
 
 if(shadowFactor>1)
@@ -208,7 +222,7 @@ if(shadowFactor>1)
 
 
 
-/*
+
 	//SHADOW STUFF
 	if(shadowCoord.w >0 && shadowIndex.x <= 1 && shadowIndex.x >= 0 && shadowIndex.y <= 1 && shadowIndex.y >= 0  &&((shadowCoord.w - texture(shadowTexture,shadowIndex).w) > EPSILON))
 {
@@ -228,6 +242,20 @@ else
 }
 
 
+
+//float lightDepth = texture2D(shadowTexture, shadowIndex).w;
+
+//gl_FragColor.xyz = vec3(log(1000*lightDepth/60)/250);
+
+
+//vec3(shadowFactor, shadowFactor, shadowFactor);  //shadowFactor*LN*Light*BRDF(N,L,V,shininess,specular, diffuse);
+//return;
+
+
+
+
+
+
 if(shadowFactor < EPSILON)
 {
 gl_FragColor.xyz=vec3(0,0,0);
@@ -239,8 +267,8 @@ return;
 
 
 //shadowFactor=1;
-gl_FragColor.xyz = shadowFactor*LN*Light*BRDF(N,L,V,shininess,specular, diffuse);
-
+//gl_FragColor.xyz = shadowFactor*LN*Light*BRDF(N,L,V,shininess,specular, diffuse);
+/*
 //gl_FragColor.xyz = vec3(shadowFactor, 0, 0);
 
 
@@ -265,6 +293,6 @@ else
 gl_FragColor.xyz =  LN*Light*BRDF(N,L,V,shininess,specular, diffuse);
 }
 
-
+*/
 
 }
