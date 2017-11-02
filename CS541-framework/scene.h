@@ -84,7 +84,8 @@ public:
 	float toggleReflection = 1.f;  //float to toggle regular lighting vs. reflection-only in shaders
 
 	vec3 ambientLight = vec3(0.02f*PI, PI*0.02f, PI* 0.02f);  //Float to denote the amount of ambient light - to be used until Proj 3
-		
+	const int shadowTextureWidth = 1024;
+	const int shadowTextureHeight = 1024;
 
     // All objects in the scene are children of this single root object.
     Object* objectRoot;

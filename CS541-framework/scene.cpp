@@ -1092,7 +1092,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				glUniform1i(loc, shadowConstant);
 				CHECKERROR;
 
-			glDispatchCompute(width / 128, height, 1); // Tiles WxH image with groups sized 128x1
+			glDispatchCompute(shadowTextureWidth / 128, shadowTextureHeight, 1); // Tiles WxH image with groups sized 128x1
 		//	shadowTexture->Unbind();
 			CHECKERROR;
 			shadowBlurComputeShader->Unuse();

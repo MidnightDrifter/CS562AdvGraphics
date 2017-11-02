@@ -161,7 +161,7 @@ return;
 }
 */
 float normPixDepth = (shadowCoord.w - minDepth) / (maxDepth-minDepth);
-float normLightDepth = (texture(shadowTexture,shadowIndex).w-minDepth) / (maxDepth-minDepth);
+//float normLightDepth = (texture(shadowTexture,shadowIndex).w-minDepth) / (maxDepth-minDepth);
 
 
 //float filteredDepth = (texture(shadowTexture,shadowIndex).w-minDepth) / (maxDepth-minDepth);
@@ -173,6 +173,11 @@ shadowFactor = min(1,shadowFactor);
 gl_FragColor.xyz = shadowFactor * LN*Light*BRDF(N,L,V,shininess,specular, diffuse);
 
 //gl_FragColor.xyz = vec3(normLightDepth);
+
+
+//gl_FragColor.xyz = vec3(log(texture2D(shadowTexture,shadowIndex).w)/100);
+
+
 return;
 
 //return;

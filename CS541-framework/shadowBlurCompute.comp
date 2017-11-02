@@ -27,24 +27,28 @@ void main() {
 //HORIZONTAL WEIGHTS
 ivec2 gpos = ivec2(gl_GlobalInvocationID.xy); // Combo of groupID, groupSize and localID	
 uint i = gl_LocalInvocationID.x; // Local thread id in the 128x1 thread groups128x1
-v[i] = imageLoad(src, gpos+ivec2(w,0)).w; // read an image pixel at an ivec2(.,.) position
-if (i<2*w) v[i+128] = imageLoad(src, gpos+ivec2(128+w,0)).w; // read extra 2*w pixels
+
+
+v[i] = imageLoad(src, gpos-ivec2(w,0)).w; // read an image pixel at an ivec2(.,.) position
+if(i<2*w) {v[i+128] = imageLoad(src,gpos+ivec2(128-w,0)).w;}
 barrier(); // Wait for all threads to catchup before reading v[]
 //…
 float sum=0;
 for(int j = -w;j<=w;j++)
 {
-sum+= weights[j+w] * v[i+j];    //Multiply weight * pixel value--assuming blurKernel is the set of weights??
+sum+= weights[j+w] * v[i+j+w];    //Multiply weight * pixel value--assuming blurKernel is the set of weights??
 }
 
-//barrier();
-//VERTICAL WEIGHTS
-v[i] = imageLoad(src,gpos+ivec2(0,w)).w;
-if(i<2*w) v[i+128] = imageLoad(src,gpos+ivec2(0,128+w)).w;  //Read extra 2*w pixels;
 barrier();
+//VERTICAL WEIGHTS
+//v[i] = imageLoad(src,gpos+ivec2(0,-w)).w;
+//if(i<2*w) {v[i+128] = imageLoad(src,gpos+ivec2(0,128-w)).w; } //Read extra 2*w pixels;
+
+
+//barrier();
 for(int k=-w;k<=w;k++)
 {
-sum+=weights[k+w]*v[i+k];
+sum+=weights[k+w]*v[i+k+w];
 }
 
 
@@ -52,6 +56,7 @@ sum+=weights[k+w]*v[i+k];
 //imageStore(dst,gpos,vec4(0.5,0.5,0.5,0.5));
 
 imageStore(dst,gpos,vec4(sum,sum,sum,sum));
+//imageStore(dst,gpos, imageLoad(src,gpos));
 //imageStore(dst,gpos,vec4(1,1,1,1));
 
 
