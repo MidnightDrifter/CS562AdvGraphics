@@ -123,8 +123,73 @@ void Scene::InitializeScene()
 	
 	prevTime = glutGet((GLenum)GLUT_ELAPSED_TIME);
 	curTime = prevTime;
+	float sum = 0;
+
+	for (int i = -kernelWidth / 2; i <= kernelWidth / 2; i++)
+	{
+		kernelWeights.push_back( exp( ((-i*i) / (2.f*s*s))));
+		//sum += kernelWeights[(i + kernelWidth / 2)];
+		
+	}
+
+	for (int i = 0; i < kernelWeights.size(); i++)
+	{
+		sum += kernelWeights[i];
+	}
+
+	for (int i = 0; i < kernelWeights.size(); i++)
+	{
+		kernelWeights[i] = kernelWeights[i]/ sum;
+	}
 
 
+
+	//Proj. 3 Hammersley points -- generate them once at the start, or make them each and every pass?
+
+	//block.N = N; // N=20 ... 40 or whatever …
+	//block.hammersley = std::vector<float>(block.N*2);
+//	int kk;
+	
+
+
+	HamBlock.HamN = HammersleyN2;
+	int pos = 0;
+	for (int k = 0; k < HamBlock.HamN; k++) {
+		int kk = k;
+		float u = 0.f;
+		//for (float p = 0.5f, int kk = k, float u = 0.0f; kk; p *= 0.5f, kk >>= 1)
+		for(float p=0.5f;kk;p*=0.5f)
+		{
+			if (kk & 1)
+			{
+				u += p;
+			}
+			float v = (k + 0.5f) / HamBlock.HamN;
+			HamBlock.hammersley[pos++] = u;
+			HamBlock.hammersley[pos++] = v;
+			kk >>= 1;
+		}
+
+	}
+
+
+	
+	//Check this--scope of 'u' might be off, it's a bit unclear in the handout
+
+
+
+
+	//Sanity check
+//	sum = 0;
+	//for (int i = 0; i < 2 * kernelWidth + 1; i++)
+//	{
+//		sum += kernelWeights[i];
+//	}
+
+	
+
+
+ 		skydome = new Texture("textures//sky.jpg");
     //glEnable(GL_DEPTH_TEST);
     CHECKERROR;
 
@@ -315,6 +380,9 @@ void Scene::InitializeScene()
 	blurredShadowTexture = new FBO();
 	blurredShadowTexture->CreateFBO(1024, 1024);
 
+	shadowBlurPureTexture = new Texture(1024, 1024);
+
+
 	gBuffer = new FBO();
 	gBuffer->CreateGBuffer(width, height);
 
@@ -323,10 +391,10 @@ void Scene::InitializeScene()
 	
 	
 
-	test = new Texture("grass.jpg");
-	skydome = new Texture("textures//sky.jpg");
-	bricksNormalTexture = new Texture("textures//Standard_red_pxr128_normal.png");
-	bricksTexture = new Texture("textures//Standard_red_pxr128.png");
+//	test = new Texture("grass.jpg");
+
+//	bricksNormalTexture = new Texture("textures//Standard_red_pxr128_normal.png");
+//	bricksTexture = new Texture("textures//Standard_red_pxr128.png");
     // Create all the Polygon shapes
    // Shape* TeapotPolygons =  new Teapot(12);  //Replace teapot with sphere
 	Shape* TeapotPolygons = new Teapot(12);
@@ -375,9 +443,18 @@ void Scene::InitializeScene()
 	}
 
 	*/
+ MAT4 localLightRadiusMat = Scale(localLightRadius, localLightRadius, localLightRadius);
 
  Object* lightSphere = new Object(SpherePolygons, localLightsId, vec3(0, 0, 0), vec3(0, 0, 0), 1.f);
- localLights->add(lightSphere, Scale(localLightRadius, localLightRadius, localLightRadius));
+ localLights->add(lightSphere, localLightRadiusMat);
+
+ for (int i = 0; i < numLocalLights; i++)
+ {
+	 Object* bob = new Object(SpherePolygons, localLightsId, vec3(0, 0, 0), vec3(0, 0, 0), 1.f);
+	 localLights->add(bob, Translate(i-(numLocalLights/2), 0, 0) * localLightRadiusMat);
+ }
+
+
  //Just one local light for sanity check
 
 
@@ -427,10 +504,7 @@ void Scene::InitializeScene()
 
 
 
-		for (int i = -kernelWidth / 2; i <= kernelWidth / 2; i++)
-		{
-			kernelWeights[i] = powf(e, (-0.5f *  (i / s) * (i / s)));
-		}
+	
 
 
 	//NEED TO NORMALIZE THESE TO SUM TO 1 LATER!!
@@ -630,7 +704,7 @@ void Scene::DrawScene()
 		skydome->Bind(5);
 		loc = glGetUniformLocation(programId, "skydomeTexture");
 		glUniform1i(loc, 5);
-
+		/*
 		bricksTexture->Bind(6);
 		loc = glGetUniformLocation(programId, "bricksTexture");
 		glUniform1i(loc, 6);
@@ -639,7 +713,7 @@ void Scene::DrawScene()
 		loc = glGetUniformLocation(programId, "normalMap");
 		glUniform1i(loc, 7);
 
-
+		*/
 		
 		
 
@@ -889,11 +963,22 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			loc = glGetUniformLocation(programId, "height");
 			glUniform1i(loc, height);
-
+			CHECKERROR;
 
 			//End 'pass gBuffer to specified shader' block	
 
 		
+
+			
+
+			unsigned int id1, bindpoint1;
+			glGenBuffers(1, &id1);
+			bindpoint1 = 3;
+			glBindBufferBase(GL_UNIFORM_BUFFER, bindpoint1, id1);
+			glBufferData(GL_UNIFORM_BUFFER, sizeof(HamBlock), &HamBlock, GL_STATIC_DRAW);
+
+			loc = glGetUniformLocation(programId, "HammersleyBlock");
+			glUniformBlockBinding(programId, loc, bindpoint1);
 
 			FSQ->Draw(gBufferAmbientLighting,Identity);   //Maybe need projection transform to orient FSQ properly?
 
@@ -936,7 +1021,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glUniformMatrix4fv(loc1, 1, GL_TRUE, LightView.Pntr());
 			//glUniformMatrix4fv(loc1, 1, GL_TRUE, WorldView.Pntr());
 
-
+			CHECKERROR;
 			loc1 = glGetUniformLocation(programID1, "WorldInverse");
 			glUniformMatrix4fv(loc1, 1, GL_TRUE, WorldInverse.Pntr());
 
@@ -957,7 +1042,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glUniform1i(loc1, 7);
 
 
-
+			CHECKERROR;
 
 			glActiveTexture(GL_TEXTURE8);
 			glBindTexture(GL_TEXTURE_2D, gBuffer->renderTargets[2]);
@@ -980,7 +1065,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glUniform1i(loc1, shadowConstant);
 
 
-
+			CHECKERROR;
 			loc1 = glGetUniformLocation(programID1, "minDepth");
 			glUniform1f(loc1, minDepth);
 
@@ -988,7 +1073,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			loc1 = glGetUniformLocation(programID1, "maxDepth");
 			glUniform1f(loc1, maxDepth);
 			// Compute any continuously animating objects
-
+			CHECKERROR;
 			glEnable(GL_CULL_FACE);
 			glCullFace(GL_FRONT);
 			for (std::vector<Object*>::iterator m1 = animated.begin(); m1<animated.end(); m1++)
@@ -1003,15 +1088,15 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			//End Shadow Depth test pass
 			
-			
+			CHECKERROR;
 
 
 			shadowBlurComputeShader->Use();
 			programId = shadowBlurComputeShader->programId;
 			
 			
-		//	blurredShadowTexture->Bind();
-
+		//	shadowBlurPureTexture->Bind();
+			CHECKERROR;
 
 			GLuint blockID;
 			glGenBuffers(1, &blockID); // Generates block
@@ -1019,46 +1104,48 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				loc = glGetUniformBlockIndex(programId, "blurKernel");
 				glUniformBlockBinding(programId, loc, bindpoint);
 				glBindBufferBase(GL_UNIFORM_BUFFER, bindpoint, blockID);
-				glBufferData(GL_UNIFORM_BUFFER, kernelWidth * sizeof(float), &kernelWeights[0], GL_STATIC_DRAW);
+				glBufferData(GL_UNIFORM_BUFFER, kernelWidth * sizeof(float), (kernelWeights.data()), GL_STATIC_DRAW);
+				CHECKERROR;
 
 
-
-				int imageUnit = 0;  //Increment for other images
+				GLint imageUnit = 1;  //Increment for other images
 				loc = glGetUniformLocation(programId, "src");
-				glBindImageTexture(imageUnit, shadowTexture->texture, 0, GL_FALSE, 0, GL_READ_ONLY, GL_R32F);
+				glBindImageTexture(imageUnit, shadowTexture->texture, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
 				glUniform1i(loc, imageUnit);
 					// Change GL_READ_ONLY to GL_WRITE_ONLY for output image
 					// Change GL_R32F to GL_RGBA32F for 4 channel images
-
+				CHECKERROR;
 				imageUnit++;
-
+				CHECKERROR;
 				loc = glGetUniformLocation(programId, "dst");
-				glBindImageTexture(imageUnit, blurredShadowTexture->texture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_R32F);
+			//	glBindImageTexture(imageUnit, shadowBlurPureTexture->textureId, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+				glBindImageTexture(imageUnit, blurredShadowTexture->texture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
 				glUniform1i(loc, imageUnit);
-
+				CHECKERROR;
 
 
 				loc = glGetUniformLocation(programId, "w");
 				glUniform1i(loc, kernelWidth / 2);
-
+				CHECKERROR;
 				loc = glGetUniformLocation(programId, "minDepth");
 				glUniform1f(loc, minDepth);
-
+				CHECKERROR;
 
 				loc = glGetUniformLocation(programId, "maxDepth");
 				glUniform1f(loc, maxDepth);
-
+				CHECKERROR;
 
 				loc = glGetUniformLocation(programId, "c");
 				glUniform1i(loc, shadowConstant);
+				CHECKERROR;
 
-
-			glDispatchCompute(width / 128, height, 1); // Tiles WxH image with groups sized 128x1
+			glDispatchCompute(shadowTextureWidth / 128, shadowTextureHeight, 1); // Tiles WxH image with groups sized 128x1
 		//	shadowTexture->Unbind();
+			CHECKERROR;
 			shadowBlurComputeShader->Unuse();
+			CHECKERROR;
 
-
-
+			
 			
 			
 			//Start Global (Shadow-casting) Light G Buffer Pass
@@ -1069,7 +1156,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glViewport(0, 0, width, height);
 		//	glClearColor(0.5, 0.5, 0.5, 1.0);
 		//	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+			CHECKERROR;
 
 			gBufferGlobalLighting->Use();
 
@@ -1085,8 +1172,11 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
 			glActiveTexture(GL_TEXTURE3);
-			//glBindTexture(GL_TEXTURE_2D, shadowTexture->texture);
+		//	glBindTexture(GL_TEXTURE_2D, shadowTexture->texture);
+		//	glBindTexture(GL_TEXTURE_2D, shadowBlurPureTexture->textureId);
 			glBindTexture(GL_TEXTURE_2D, blurredShadowTexture->texture);
+			CHECKERROR;
+			
 			loc = glGetUniformLocation(programId, "shadowTexture");
 			glUniform1i(loc, 3);
 
@@ -1145,7 +1235,13 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glUniform1i(loc1,height);
 	//		CHECKERROR;
 
+			loc1 = glGetUniformLocation(programId, "minDepth");
+			glUniform1f(loc1, Scene::minDepth);
+			CHECKERROR;
 
+			loc1 = glGetUniformLocation(programId, "maxDepth");
+			glUniform1f(loc1, Scene::maxDepth);
+			CHECKERROR;
 
 			loc1 = glGetUniformLocation(programId, "c");
 			glUniform1i(loc1, shadowConstant);
@@ -1174,7 +1270,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		//	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	
 			
-
+			/*
 
 			gBufferLocalLighting->Use();
 			glDisable(GL_DEPTH_TEST);
@@ -1269,7 +1365,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			//End local lighting pass
 			
 			glDisable(GL_BLEND);
-
+*/
 
 /*
 

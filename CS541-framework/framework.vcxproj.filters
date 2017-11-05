@@ -84,6 +84,12 @@
     <ClCompile Include="fbo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="rgbe.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sample-filter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -117,6 +123,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="fbo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rgbe.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -61,9 +61,17 @@ void FBO::CreateFBO(const int w, const int h)
 
 void FBO::CreateGBuffer(const int w, const int h)
 {
-	width = w;
-	height = h;
 
+	if (w <= 0 || h <= 0)
+	{
+		width = 1024;
+		height = 1024;
+	}
+	else
+	{
+		width = w;
+		height = h;
+	}
 	glGenFramebuffersEXT(1, &fbo);
 	glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fbo);
 

@@ -17,6 +17,8 @@ const int     teapotId	= 9;
 const int     spheresId	= 10;
 const float EPSILON = 0.01;
 const float PI = 3.1415926535897932384626433832795;
+const float e = 2.7182818284590452353602874713527;
+
 in vec3 normalVec, lightVec;
 //in vec2 texCoord;
 //in vec4 shadowCoord;
@@ -35,8 +37,9 @@ uniform sampler2D shadowTexture;
 
 uniform int width;
 uniform int height;
-uniform float minDepth, maxDepth;
-
+uniform float minDepth;
+uniform float maxDepth;
+uniform int c;
 //uniform mat4 ShadowMatrix, WorldInverse;
 //uniform sampler2D shadowTexture;
 //uniform vec3 lightPos;
@@ -157,16 +160,74 @@ gl_FragColor.xyz = skyColor; //  Check this  ???
 return;
 }
 */
+float normPixDepth = (shadowCoord.w - minDepth) / (maxDepth-minDepth);
+//float normLightDepth = (texture(shadowTexture,shadowIndex).w-minDepth) / (maxDepth-minDepth);
 
 
-float filteredDepth = (texture(shadowTexture,shadowIndex)-minDepth) / (maxDepth-minDepth);
-float shadowFactor = filteredDepth * exp(e,-c*shadowCoord.w);
+//float filteredDepth = (texture(shadowTexture,shadowIndex).w-minDepth) / (maxDepth-minDepth);
+float shadowFactor =   texture2D(shadowTexture,shadowIndex).w * exp(-c*normPixDepth);         //normPixDepth * exp(-c*normPixelDepth);
+
+//shadowFactor = texture2D(shadowTexture,shadowIndex).w * exp(-1*c*normPixDepth);
+shadowFactor = min(1,shadowFactor);
+
+gl_FragColor.xyz = shadowFactor * LN*Light*BRDF(N,L,V,shininess,specular, diffuse);
+
+//gl_FragColor.xyz = vec3(normLightDepth);
+
+
+//gl_FragColor.xyz = vec3(log(texture2D(shadowTexture,shadowIndex).w)/100);
+
+
+return;
+
+//return;
+
+
+/*
+if(texture2D(shadowTexture,shadowIndex).w ==0)
+{
+gl_FragColor.xyz = vec3(1,0,1);
+}
+else if(texture2D(shadowTexture,shadowIndex).w >=1)
+{
+gl_FragColor.xyz = vec3(1,0,0);
+}
+
+else
+{
+gl_FragColor.xyz = texture2D(shadowTexture,shadowIndex).www;
+}
+
+
+//return;
+
+if(exp(-c*normPixDepth) >=1)
+{
+
+gl_FragColor.xyz=vec3(1,0,0);
+
+}
+
+
+
+if(texture2D(shadowTexture,shadowIndex).w <=0)
+{
+
+gl_FragColor.xyz = vec3(1,0.5,0);
+//return;
+}
+
+
+
 
 if(shadowFactor>1)
 {
 	shadowFactor=1;
 }
-/*
+
+
+
+
 	//SHADOW STUFF
 	if(shadowCoord.w >0 && shadowIndex.x <= 1 && shadowIndex.x >= 0 && shadowIndex.y <= 1 && shadowIndex.y >= 0  &&((shadowCoord.w - texture(shadowTexture,shadowIndex).w) > EPSILON))
 {
@@ -184,16 +245,59 @@ else
 {
 	gl_FragColor.xyz = LN*Light*BRDF(N,L,V,shininess,specular, diffuse);
 }
-*/
+
+
+
+//float lightDepth = texture2D(shadowTexture, shadowIndex).w;
+
+//gl_FragColor.xyz = vec3(log(1000*lightDepth/60)/250);
+
+
+//vec3(shadowFactor, shadowFactor, shadowFactor);  //shadowFactor*LN*Light*BRDF(N,L,V,shininess,specular, diffuse);
+//return;
+
+
+
+
+
 
 if(shadowFactor < EPSILON)
 {
 gl_FragColor.xyz=vec3(0,0,0);
 return;
 }
+*/
 
 
-gl_FragColor.xyz = shadowFactor*Light*BRDF(N,L,V,shininess,specular, diffuse);
 
+
+//shadowFactor=1;
+//gl_FragColor.xyz = shadowFactor*LN*Light*BRDF(N,L,V,shininess,specular, diffuse);
+/*
+//gl_FragColor.xyz = vec3(shadowFactor, 0, 0);
+
+
+if(shadowFactor >=1)
+{
+
+gl_FragColor.xyz = vec3(1,0,1);
+
+}
+
+else if(shadowFactor <0)
+{
+
+gl_FragColor.xyz= vec3(1,0,0);
+
+}
+
+
+else
+{
+
+gl_FragColor.xyz =  LN*Light*BRDF(N,L,V,shininess,specular, diffuse);
+}
+
+*/
 
 }

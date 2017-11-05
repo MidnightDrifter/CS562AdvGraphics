@@ -16,7 +16,9 @@
 #include "object.h"
 #include "texture.h"
 #include "fbo.h"
+#include <vector>
 
+#define HammersleyN 25
 
 enum ObjectIds {
     nullId	= 0,
@@ -31,6 +33,12 @@ enum ObjectIds {
     teapotId	= 9,
     spheresId	= 10,
 	localLightsId=11,
+};
+
+struct HamStruct {
+	int HamN;// = HammersleyN;
+			 //	std::vector<float> hammersley;
+	float hammersley[(2 * HammersleyN)];
 };
 
 class Shader;
@@ -83,15 +91,16 @@ public:
 	float toggleReflection = 1.f;  //float to toggle regular lighting vs. reflection-only in shaders
 
 	vec3 ambientLight = vec3(0.02f*PI, PI*0.02f, PI* 0.02f);  //Float to denote the amount of ambient light - to be used until Proj 3
-		
+	const int shadowTextureWidth = 1024;
+	const int shadowTextureHeight = 1024;
 
     // All objects in the scene are children of this single root object.
     Object* objectRoot;
 	Object* objectRootNoTeapot;
     std::vector<Object*> animated;
 	Object* localLights;
-	int numLocalLights = 250;
-	float localLightRadius = 15.f;  //Likely assume that, for each light, their sphere of influence is approx. their radius or some multiple of it
+	int numLocalLights = 1000;
+	float localLightRadius = 30.f;  //Likely assume that, for each light, their sphere of influence is approx. their radius or some multiple of it
 	int shadowConstant = 60;  //C value for exponential shadow map
 	vec3 lightColor = vec3(PI, PI, PI);
 	vec3 localLightColor = vec3(PI , PI/8 ,PI/8  ); /// vec3(numLocalLights, numLocalLights, numLocalLights);
@@ -106,21 +115,25 @@ public:
 	//Textures - testin'
 	Texture* test;
 	Texture *bricksNormalTexture,* bricksTexture, *skydome;
+	Texture* shadowBlurPureTexture;
+
+
+	const float minDepth = 0.1f;
+
+	const float maxDepth = 1000.f;
+
+	Object* FSQ;
 
 	const float e = 2.7182818284590452353602874713527;
 	const static int kernelWidth = 25;
-	const float s = kernelWidth / 2.f;
-	float kernelWeights[kernelWidth];// = new int[kernelWidth];
+	const int s = kernelWidth / 2;
+	std::vector<float> kernelWeights;
+
+	 int HammersleyN2 = HammersleyN;
+	HamStruct HamBlock = HamStruct();
 	
 
-
-	float minDepth = 0.5f;
-
-	float maxDepth = 50.f;
-
-
-
-	Object* FSQ; //Full screen quad
+ //Full screen quad
 
     //void append(Object* m) { objects.push_back(m); }
 

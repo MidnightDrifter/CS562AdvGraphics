@@ -129,13 +129,16 @@ void main()
 	LN = max(dot(lD,N),0.f);
 
 
-	 if(radiusSquared -dot(lightDistance,lightDistance) <= EPSILON)
+	// if(radiusSquared -dot(lightDistance,lightDistance) <= EPSILON)
+	if(radiusSquared >= dot(lightDistance, lightDistance))
 	{
 	
 //	gl_FragColor.xyz=vec3(0.5,0,0);
-gl_FragColor.xyz = LN* localLightBrightness *BRDF(N,lD,eyeVec,shininess,specular,diffuse );
+gl_FragColor.xyz =   (dot(lightDistance, lightDistance) / radiusSquared)*LN* localLightBrightness *BRDF(N,lD,eyeVec,shininess,specular,diffuse );
 	//gl_FragColor.xyz = vec3(0,1,0);
 	}
+
+
 
 	else
 	{
