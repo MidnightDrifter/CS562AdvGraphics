@@ -35,7 +35,7 @@ uniform sampler2D irradianceMap;
 
 uniform HammersleyBlock {
 int HamN;
-float hammersley[2*N]; };
+float hammersley[2*100]; };
 
 
 
@@ -159,38 +159,57 @@ void main()
 //	gl_FragColor.xyz = specular;
 //  gl_FragColor.xyz = worldPos.xyz;
 
-
-
-
-
-if(texture2D(gBuffer3,myPixelCoordinate).w == skyId)
-{
 //Lin. Color Space & Tone Mapping
-vec3 outColor = vec3(0,0,0);
-vec3 inColor = texture2D(skydomeTexture, skyTexCoord).xyz;
 
-inColor = pow(inColor, vec3(2.2));
-
-
-
-
-
-
-
-
-
-
-
-
-	vec2 myPixelCoordinate = vec2(gl_FragCoord.x/ width, gl_FragCoord.y/height);  
+	//vec2 myPixelCoordinate = vec2(gl_FragCoord.x/ width, gl_FragCoord.y/height);  
 
 	vec3 worldPos = texture2D(gBuffer0,myPixelCoordinate).xyz;
 		
 		vec3 V = normalize((WorldInverse * vec4(0.f, 0.f, 0.f, 1.f)).xyz-worldPos);
-
-
+vec3 outColor = vec3(0,0,0);
+//vec3 inColor = texture2D(skydomeTexture, skyTexCoord).xyz;
+//inColor = pow(inColor, vec3(2.2));
 
 		vec3 R = 2*dot(N,V)*N - V;	
+
+
+if(texture2D(gBuffer3,myPixelCoordinate).w == skyId)
+{
+
+
+
+
+		
+vec3 D = -1*V;
+//vec3 D = V;
+//vec2 skyTexCoord= vec2(0.5f - atan(D.y,D.x), -acos(D.z)/PI);  //Flip the acos to flip the skydome
+
+
+vec2 skyTexCoord= vec2(0.5f - atan(D.y,D.x)/(2*PI), -acos(D.z)/PI);  //Flip this to flip skysphere
+vec3 skyColor = texture(skydomeTexture,skyTexCoord).xyz;
+
+//skyColor = vec3(1.f,0.f,0.f);
+
+gl_FragColor.xyz = pow(skyColor, vec3(contrast/2.2)); //  Check this  ???
+
+
+
+//Lin. Color Space & Tone Mapping
+
+
+
+
+return;
+
+
+
+
+
+
+
+
+}
+
 
 		vec3 A = normalize(cross(vec3(0,0,1), R));
 		vec3 B = normalize(cross(R,A));
@@ -213,8 +232,12 @@ inColor = pow(inColor, vec3(2.2));
 		L = vec3( cos(2*PI*(0.5-randTexCoord.x))*sin(PI*randTexCoord.y),  sin(2*PI*(0.5-randTexCoord.x))*sin(PI*randTexCoord.y),  cos(PI*randTexCoord.y)	);
 		wK = normalize(L.x * A + L.y * B + L.z * R);
 
-		level = (  (0.5)* log2(width*height/HamN)  ) - ( 0.5* log2(dValue(wK,V,N,shininess)/4)   ) ;  //Check this--might use L instead of wK
-		lightIntensity = textureLod(skydomeTexture, skyTexCoord,level).xyz;
+	//	float bigLog = log2(1.0*width*height/HamN);
+	//	float dLog = log2(1.0*width*height/HamN);
+
+		level = (  (0.5)* log2(1.0*width*height/HamN)  ) - ( 0.5* log2(dValue(wK,V,N,shininess)/4)   ) ;  //Check this--might use L instead of wK
+		lightIntensity = textureLod(skydomeTexture, randTexCoord,level).xyz;   //Check this line later--might need to raise to that 2.2 power
+		lightIntensity = pow(lightIntensity,vec3(2.2));
 
 		monteCarloSum += (gValue(wK,V,N) * fValue(wK,V,N,specular)*lightIntensity*max(0,dot(wK,N)));
 
@@ -222,53 +245,22 @@ inColor = pow(inColor, vec3(2.2));
 
 
 
-		monteCarloSum /= HamN;   //Specular bit!!
+		monteCarloSum /= vec3(HamN);   //Specular bit!!
 
 		//Diffuse bit--just read from irradiance map
-		vec2 irradianceTexCoord = (0.5−(atan(N.y ,N.x)/(2*PI)), acos(N.z)/PI );
+		vec2 irradianceTexCoord = vec2(0.5-(atan(N.y,N.x)/(2*PI)), acos(N.z)/PI);   //vec2( 0.5−(atan(N.y ,N.x)/(2*PI) ), acos(N.z)/PI );
 		diffuseApprox = (diffuse/PI) * texture(irradianceMap, irradianceTexCoord).xyz;
 
 
 
 		outColor = diffuseApprox + monteCarloSum;
-		
+
+		outColor = ((exposure*outColor)/((exposure*outColor) + vec3(1,1,1)));
+		outColor = pow(outColor, vec3(contrast/2.2));
 
 
 
-		
-vec3 D = -1*V;
-//vec3 D = V;
-//vec2 skyTexCoord= vec2(0.5f - atan(D.y,D.x), -acos(D.z)/PI);  //Flip the acos to flip the skydome
-
-
-vec2 skyTexCoord= vec2(0.5f - atan(D.y,D.x)/(2*PI), -acos(D.z)/PI);  //Flip this to flip skysphere
-vec3 skyColor = texture(skydomeTexture,skyTexCoord).xyz;
-
-//skyColor = vec3(1.f,0.f,0.f);
-
-gl_FragColor.xyz = skyColor; //  Check this  ???
-
-
-
-//Lin. Color Space & Tone Mapping
-outColor = ((exposure*outColor)/((exposure*outColor) + vec3(1,1,1)));
-outColor = pow(outColor, vec3(contrast/2.2))
-
-
-
-return;
-
-
-
-
-
-
-
-
-}
-
-
-  gl_FragColor.xyz = ambient;
+  //gl_FragColor.xyz = ambient;
 
 
 

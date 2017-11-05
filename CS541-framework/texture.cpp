@@ -13,12 +13,18 @@
 #include <glbinding/gl/gl.h>
 #include <glbinding/Binding.h>
 using namespace gl;
+#include <freeglut.h>
+#include <glu.h>   
+
 
 #define STB_IMAGE_IMPLEMENTATION
 #define STBI_FAILURE_USERMSG
 #include "stb_image.h"
 
-
+#define CHECKERROR\
+ {GLenum err = glGetError();\
+  if (err != GL_NO_ERROR) {\
+fprintf(stdout, "OpenGL error (at line %d): %s\n", __LINE__, gluErrorString(err));}}
 
 
 Texture::Texture(int width, int height) : textureId(0)
@@ -75,12 +81,18 @@ void Texture::MakeHDRTexture(const std::string& filename)
 
 	int width, height;// = nullptr;
 	//int* height = nullptr;
-	rgbe_header_info* headerInfo = nullptr;
+	rgbe_header_info headerInfo;   // = nullptr;
 	char errBuff[100] = { 0 };
-	int errCode = RGBE_ReadHeader_FNAME(filename.c_str(), &width, &height, errBuff);
+
+	FILE* fp(fopen(filename.c_str(), "rb"));
+
+	int errCode = RGBE_ReadHeader(fp, &width, &height, &headerInfo, errBuff);
 
 	std::vector<float> hdrInputVals(3*(width)*(height));
 
+
+
+//	fopen(filename.c_str(),fp
 
 	if (errCode == RGBE_RETURN_FAILURE)
 	{
@@ -89,8 +101,17 @@ void Texture::MakeHDRTexture(const std::string& filename)
 	}
 
 
-	errCode = RGBE_ReadPixels_RLE_FNAME(filename.c_str(), hdrInputVals.data(), width, height, errBuff);
-	
+	errCode = RGBE_ReadPixels_RLE(fp, hdrInputVals.data(), width, height, errBuff);
+
+
+
+	if (-1 == fclose(fp))
+	{
+		exit(-4);
+	}
+
+
+
 	if (errCode == RGBE_RETURN_FAILURE)
 	{
 		exit(-3);
@@ -100,7 +121,9 @@ void Texture::MakeHDRTexture(const std::string& filename)
 
 	glGenTextures(1, &textureId);   // Get an integer id for thi texture from OpenGL
 	glBindTexture(GL_TEXTURE_2D, textureId);
-	glTexImage2D(GL_TEXTURE_2D, 0, 4, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, hdrInputVals.data());
+	CHECKERROR;
+	glTexImage2D(GL_TEXTURE_2D, 0, (int)GL_SRGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, hdrInputVals.data());
+	CHECKERROR;
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 100);
 	glGenerateMipmap(GL_TEXTURE_2D);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, (int)GL_LINEAR);

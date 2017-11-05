@@ -38,7 +38,7 @@ enum ObjectIds {
 struct HamStruct {
 	int HamN;// = HammersleyN;
 			 //	std::vector<float> hammersley;
-	float hammersley[(2 * HammersleyN)];
+	float* hammersley = nullptr;
 };
 
 class Shader;
@@ -138,6 +138,11 @@ public:
  //Full screen quad
 
     //void append(Object* m) { objects.push_back(m); }
+
+
+	float exposure = 10.f;
+	float contrast = 10.f;
+
 
     void InitializeScene();
     void DrawScene();

@@ -36,7 +36,7 @@ MAT4 Identity2;
 
 
 const float grndSize = 100.0;    // Island radius;  Minimum about 20;  Maximum 1000 or so
-const int   grndTiles = int(grndSize);
+const int   grndTiles = 100;//int(grndSize);
 const float grndOctaves = 4.0;  // Number of levels of detail to compute
 const float grndFreq = 0.03;    // Number of hills per (approx) 50m
 const float grndPersistence = 0.03; // Terrain roughness: Slight:0.01  rough:0.05
@@ -61,7 +61,6 @@ void PrintMat(const MAT4& m)
 #define CHECKERROR\
  {GLenum err = glGetError();\
   if (err != GL_NO_ERROR) {\
-fprintf(stderr, "OpenGL error (at line %d): %s\n", __LINE__, gluErrorString(err)); \
 fprintf(stdout, "OpenGL error (at line %d): %s\n", __LINE__, gluErrorString(err));}}
 
 //exit(-1);}\
@@ -145,7 +144,7 @@ void Scene::InitializeScene()
 
 
 	//Proj. 3 Hammersley points -- generate them once at the start, or make them each and every pass?
-
+	
 	//block.N = N; // N=20 ... 40 or whatever …
 	//block.hammersley = std::vector<float>(block.N*2);
 //	int kk;
@@ -154,24 +153,37 @@ void Scene::InitializeScene()
 
 	HamBlock.HamN = HammersleyN2;
 	int pos = 0;
+	HamBlock.hammersley = new float[2 * HamBlock.HamN];
+
+	std::vector<float> tempFloats(2 * HamBlock.HamN);
+
+
+
+
 	for (int k = 0; k < HamBlock.HamN; k++) {
 		int kk = k;
 		float u = 0.f;
 		//for (float p = 0.5f, int kk = k, float u = 0.0f; kk; p *= 0.5f, kk >>= 1)
-		for(float p=0.5f;kk;p*=0.5f)
+		for (float p = 0.5f; kk; p *= 0.5f)
 		{
 			if (kk & 1)
 			{
 				u += p;
 			}
-			float v = (k + 0.5f) / HamBlock.HamN;
-			HamBlock.hammersley[pos++] = u;
-			HamBlock.hammersley[pos++] = v;
 			kk >>= 1;
 		}
+			float v = (k + 0.5f) / HamBlock.HamN;
+			tempFloats[pos++] = u;
+			tempFloats[pos++] = v;
+		
+		
 
 	}
 
+	for(int x =0;x<2*HamBlock.HamN;x++)
+	{
+		HamBlock.hammersley[x] = tempFloats[x];
+	}
 
 	
 	//Check this--scope of 'u' might be off, it's a bit unclear in the handout
@@ -191,9 +203,10 @@ void Scene::InitializeScene()
 
  		skydome = new Texture("textures//sky.jpg");
 		HDRskydome = new Texture();
-		HDRskydome->MakeHDRTexture("HDR_TEXTURE_NAME_HERE");
-
-		irradianceMap = new Texture("IRRADIANCE_MAP_NAME_HERE");
+		HDRskydome->MakeHDRTexture("textures//14-Hamarikyu_Bridge_B_3k.hdr");
+		CHECKERROR;
+		irradianceMap = new Texture();
+		irradianceMap->MakeHDRTexture("textures//14-Hamarikyu_Bridge_B_3k.irr.hdr");
 
     //glEnable(GL_DEPTH_TEST);
     CHECKERROR;
@@ -939,6 +952,14 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glUniform1i(loc, 10);
 
 
+
+			loc = glGetUniformLocation(programId, "exposure");
+			glUniform1f(loc, exposure);
+
+
+			loc = glGetUniformLocation(programId, "contrast");
+			glUniform1f(loc, contrast);
+
 			//Start 'pass gBuffer to specified shader' block
 
 			glActiveTexture(GL_TEXTURE6);
@@ -983,18 +1004,19 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			//End 'pass gBuffer to specified shader' block	
 
 		
-
+			
 			
 
 			unsigned int id1, bindpoint1;
 			glGenBuffers(1, &id1);
-			bindpoint1 = 3;
+			bindpoint1 = 4;
 			glBindBufferBase(GL_UNIFORM_BUFFER, bindpoint1, id1);
 			glBufferData(GL_UNIFORM_BUFFER, sizeof(HamBlock), &HamBlock, GL_STATIC_DRAW);
-
-			loc = glGetUniformLocation(programId, "HammersleyBlock");
+			CHECKERROR;
+			loc = glGetUniformBlockIndex(programId, "HammersleyBlock");
+			CHECKERROR;
 			glUniformBlockBinding(programId, loc, bindpoint1);
-
+			CHECKERROR;
 			FSQ->Draw(gBufferAmbientLighting,Identity);   //Maybe need projection transform to orient FSQ properly?
 
 			gBufferAmbientLighting->Unuse();
@@ -1009,7 +1031,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			
 			ShadowMatrix = Translate(0.5, 0.5, 0.5) * Scale(0.5, 0.5, 0.5) * LightProj * LightView;
-
+			CHECKERROR;
 
 			shadowProgram->Use();
 			shadowTexture->Bind();
