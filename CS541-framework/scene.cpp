@@ -143,6 +143,42 @@ void Scene::InitializeScene()
 	}
 
 
+
+	//Proj. 3 Hammersley points -- generate them once at the start, or make them each and every pass?
+
+	//block.N = N; // N=20 ... 40 or whatever …
+	//block.hammersley = std::vector<float>(block.N*2);
+//	int kk;
+	
+
+
+	HamBlock.HamN = HammersleyN2;
+	int pos = 0;
+	for (int k = 0; k < HamBlock.HamN; k++) {
+		int kk = k;
+		float u = 0.f;
+		//for (float p = 0.5f, int kk = k, float u = 0.0f; kk; p *= 0.5f, kk >>= 1)
+		for(float p=0.5f;kk;p*=0.5f)
+		{
+			if (kk & 1)
+			{
+				u += p;
+			}
+			float v = (k + 0.5f) / HamBlock.HamN;
+			HamBlock.hammersley[pos++] = u;
+			HamBlock.hammersley[pos++] = v;
+			kk >>= 1;
+		}
+
+	}
+
+
+	
+	//Check this--scope of 'u' might be off, it's a bit unclear in the handout
+
+
+
+
 	//Sanity check
 //	sum = 0;
 	//for (int i = 0; i < 2 * kernelWidth + 1; i++)
@@ -932,6 +968,17 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			//End 'pass gBuffer to specified shader' block	
 
 		
+
+			
+
+			unsigned int id1, bindpoint1;
+			glGenBuffers(1, &id1);
+			bindpoint1 = 3;
+			glBindBufferBase(GL_UNIFORM_BUFFER, bindpoint1, id1);
+			glBufferData(GL_UNIFORM_BUFFER, sizeof(HamBlock), &HamBlock, GL_STATIC_DRAW);
+
+			loc = glGetUniformLocation(programId, "HammersleyBlock");
+			glUniformBlockBinding(programId, loc, bindpoint1);
 
 			FSQ->Draw(gBufferAmbientLighting,Identity);   //Maybe need projection transform to orient FSQ properly?
 

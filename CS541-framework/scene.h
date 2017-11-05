@@ -18,6 +18,7 @@
 #include "fbo.h"
 #include <vector>
 
+#define HammersleyN 25
 
 enum ObjectIds {
     nullId	= 0,
@@ -32,6 +33,12 @@ enum ObjectIds {
     teapotId	= 9,
     spheresId	= 10,
 	localLightsId=11,
+};
+
+struct HamStruct {
+	int HamN;// = HammersleyN;
+			 //	std::vector<float> hammersley;
+	float hammersley[(2 * HammersleyN)];
 };
 
 class Shader;
@@ -122,8 +129,9 @@ public:
 	const int s = kernelWidth / 2;
 	std::vector<float> kernelWeights;
 
-
-
+	 int HammersleyN2 = HammersleyN;
+	HamStruct HamBlock = HamStruct();
+	
 
  //Full screen quad
 

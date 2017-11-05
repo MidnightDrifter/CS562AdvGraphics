@@ -15,7 +15,9 @@
     <ClCompile Include="framework.cpp" />
     <ClCompile Include="interact.cpp" />
     <ClCompile Include="object.cpp" />
+    <ClCompile Include="rgbe.cpp" />
     <ClCompile Include="rply.c" />
+    <ClCompile Include="sample-filter.cpp" />
     <ClCompile Include="scene.cpp" />
     <ClCompile Include="shader.cpp" />
     <ClCompile Include="shapes.cpp" />
@@ -28,6 +30,7 @@
     <ClInclude Include="framework.h" />
     <ClInclude Include="interact.h" />
     <ClInclude Include="object.h" />
+    <ClInclude Include="rgbe.h" />
     <ClInclude Include="rply.h" />
     <ClInclude Include="scene.h" />
     <ClInclude Include="shader.h" />
