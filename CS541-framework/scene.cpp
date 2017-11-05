@@ -190,6 +190,11 @@ void Scene::InitializeScene()
 
 
  		skydome = new Texture("textures//sky.jpg");
+		HDRskydome = new Texture();
+		HDRskydome->MakeHDRTexture("HDR_TEXTURE_NAME_HERE");
+
+		irradianceMap = new Texture("IRRADIANCE_MAP_NAME_HERE");
+
     //glEnable(GL_DEPTH_TEST);
     CHECKERROR;
 
@@ -701,9 +706,14 @@ void Scene::DrawScene()
 		glUniform1f(loc, toggleReflection);
 		*/
 
-		skydome->Bind(5);
+		HDRskydome->Bind(5);
 		loc = glGetUniformLocation(programId, "skydomeTexture");
 		glUniform1i(loc, 5);
+
+
+
+
+
 		/*
 		bricksTexture->Bind(6);
 		loc = glGetUniformLocation(programId, "bricksTexture");
@@ -920,9 +930,14 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
 
-			skydome->Bind(5);
+			HDRskydome->Bind(5);
 			loc = glGetUniformLocation(programId, "skydomeTexture");
 			glUniform1i(loc, 5);
+
+			irradianceMap->Bind(10);
+			loc = glGetUniformLocation(programId, "irradianceMap");
+			glUniform1i(loc, 10);
+
 
 			//Start 'pass gBuffer to specified shader' block
 

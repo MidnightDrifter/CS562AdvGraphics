@@ -28,6 +28,7 @@ uniform sampler2D gBuffer2;  //diffuse.xyz
 uniform sampler2D gBuffer3;  //normalVec.xyz
 
 
+uniform sampler2D skydomeTexture;
 uniform sampler2D irradianceMap;
 
 //uniform sampler2D 
@@ -38,7 +39,6 @@ float hammersley[2*N]; };
 
 
 
-uniform sampler2D skydomeTexture;
 
 uniform vec3 ambient;
 

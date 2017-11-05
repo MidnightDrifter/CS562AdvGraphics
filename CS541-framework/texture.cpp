@@ -9,7 +9,7 @@
 #include <stdlib.h>
 
 #include "texture.h"
-
+#include "rgbe.h"
 #include <glbinding/gl/gl.h>
 #include <glbinding/Binding.h>
 using namespace gl;
@@ -17,6 +17,9 @@ using namespace gl;
 #define STB_IMAGE_IMPLEMENTATION
 #define STBI_FAILURE_USERMSG
 #include "stb_image.h"
+
+
+
 
 Texture::Texture(int width, int height) : textureId(0)
 {
@@ -64,4 +67,49 @@ void Texture::Bind(const int unit)
 void Texture::Unbind()
 {  
     glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+
+void Texture::MakeHDRTexture(const std::string& filename) 
+{
+
+	int width, height;// = nullptr;
+	//int* height = nullptr;
+	rgbe_header_info* headerInfo = nullptr;
+	char errBuff[100] = { 0 };
+	int errCode = RGBE_ReadHeader_FNAME(filename.c_str(), &width, &height, errBuff);
+
+	std::vector<float> hdrInputVals(3*(width)*(height));
+
+
+	if (errCode == RGBE_RETURN_FAILURE)
+	{
+		//An error has occurred, exit!
+		exit(-2);
+	}
+
+
+	errCode = RGBE_ReadPixels_RLE_FNAME(filename.c_str(), hdrInputVals.data(), width, height, errBuff);
+	
+	if (errCode == RGBE_RETURN_FAILURE)
+	{
+		exit(-3);
+	}
+
+	//std::vector<char> image(hdrInputVals.size());
+
+	glGenTextures(1, &textureId);   // Get an integer id for thi texture from OpenGL
+	glBindTexture(GL_TEXTURE_2D, textureId);
+	glTexImage2D(GL_TEXTURE_2D, 0, 4, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, hdrInputVals.data());
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 100);
+	glGenerateMipmap(GL_TEXTURE_2D);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, (int)GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, (int)GL_LINEAR_MIPMAP_LINEAR);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	
+
+//NO idea if this works at all
+
+
+
 }

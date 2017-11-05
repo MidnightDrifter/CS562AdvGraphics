@@ -14,12 +14,23 @@ class Texture
     
 
 	//Sean added this
+	Texture() : textureId(0) {}
 	Texture(int width, int height);
 
 
     Texture(const std::string &filename);
     void Bind(const int unit);
     void Unbind();
+
+
+	void MakeHDRTexture(const std::string& filename);
+
+
 };
+
+
+
+
+
 
 #endif

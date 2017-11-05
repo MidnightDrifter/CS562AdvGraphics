@@ -117,6 +117,8 @@ public:
 	Texture *bricksNormalTexture,* bricksTexture, *skydome;
 	Texture* shadowBlurPureTexture;
 
+	Texture* HDRskydome;
+	Texture* irradianceMap;
 
 	const float minDepth = 0.1f;
 
