@@ -27,7 +27,7 @@ using namespace gl;
 fprintf(stdout, "OpenGL error (at line %d): %s\n", __LINE__, gluErrorString(err));}}
 
 
-Texture::Texture(int width, int height) : textureId(0)
+Texture::Texture(int width, int height) : textureId(0), HDRwidth(-1), HDRheight(-1)
 {
 	
 
@@ -90,7 +90,8 @@ void Texture::MakeHDRTexture(const std::string& filename)
 
 	std::vector<float> hdrInputVals(3*(width)*(height));
 
-
+	HDRwidth = width;
+	HDRheight = height;
 
 //	fopen(filename.c_str(),fp
 
@@ -122,7 +123,7 @@ void Texture::MakeHDRTexture(const std::string& filename)
 	glGenTextures(1, &textureId);   // Get an integer id for thi texture from OpenGL
 	glBindTexture(GL_TEXTURE_2D, textureId);
 	CHECKERROR;
-	glTexImage2D(GL_TEXTURE_2D, 0, (int)GL_SRGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, hdrInputVals.data());
+	glTexImage2D(GL_TEXTURE_2D, 0, (int)GL_RGB32F, width, height, 0, GL_RGB, GL_FLOAT, hdrInputVals.data());
 	CHECKERROR;
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 100);
 	glGenerateMipmap(GL_TEXTURE_2D);

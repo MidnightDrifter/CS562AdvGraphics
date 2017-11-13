@@ -149,16 +149,17 @@ void Scene::InitializeScene()
 	//block.hammersley = std::vector<float>(block.N*2);
 //	int kk;
 	
-
+	
 
 	HamBlock.HamN = HammersleyN2;
-	int pos = 0;
+
 	HamBlock.hammersley = new float[2 * HamBlock.HamN];
 
+	/*
 	std::vector<float> tempFloats(2 * HamBlock.HamN);
 
 
-
+	
 
 	for (int k = 0; k < HamBlock.HamN; k++) {
 		int kk = k;
@@ -184,7 +185,7 @@ void Scene::InitializeScene()
 	{
 		HamBlock.hammersley[x] = tempFloats[x];
 	}
-
+	*/
 	
 	//Check this--scope of 'u' might be off, it's a bit unclear in the handout
 
@@ -235,8 +236,7 @@ void Scene::InitializeScene()
     glEnable(GL_DEPTH_TEST);
 
     // FIXME:  Change false to true to randomize the room's position.
-    ground =  new ProceduralGround(grndSize, grndTiles, grndOctaves, grndFreq,
-                                   grndPersistence, grndLow, grndHigh, false);
+    ground =  new ProceduralGround(grndSize, grndTiles, grndOctaves, grndFreq,grndPersistence, grndLow, grndHigh, false);
 
     basePoint = ground->highPoint;
 
@@ -431,7 +431,8 @@ void Scene::InitializeScene()
     Object* anim = new Object(NULL, nullId);
     //Replace teapot with sphere for Earth
 	//Object* teapot = new Object(TeapotPolygons, teapotId, vec3(0.5, 0.5, 0.1), vec3(0.5, 0.5, 0.5), 120);
-	Object* teapot = new Object(TeapotPolygons, teapotId, vec3(0.5, 0.5, 0.1), vec3(0.5, 0.5, 0.5), 120);
+//	Object* teapot = new Object(TeapotPolygons, teapotId, vec3(0.5, 0.5, 0.1), vec3(0.5, 0.5, 0.5), 120);
+	Object* teapot = new Object(TeapotPolygons, teapotId, teapotDiffuse, teapotSpecular, 120);
 	Object* podium = new Object(BoxPolygons, boxId,
                                 vec3(0.25, 0.25, 0.1), vec3(0.3, 0.3, 0.3), 10);
     
@@ -482,8 +483,14 @@ void Scene::InitializeScene()
 
     // Scene is composed of sky, ground, sea, and ... models
     objectRoot->add(sky, Scale(500.0, 500.0, 500.0));
-    objectRoot->add(ground);
-    objectRoot->add(sea);
+  //  objectRoot->add(ground);
+  //  objectRoot->add(sea);
+
+
+  //objectRootNoTeapot->add(ground);
+  //objectRootNoTeapot->add(sea);
+
+
 
 
     // Two models have rudimentary animation (constant rotation on Z)
@@ -499,8 +506,7 @@ void Scene::InitializeScene()
 	//Add every object EXCEPT the teapot to another object, draw that for reflection passes
 	// Scene is composed of sky, ground, sea, and ... models
 	objectRootNoTeapot->add(sky, Scale(500.0, 500.0, 500.0));
-	objectRootNoTeapot->add(ground);
-	objectRootNoTeapot->add(sea);
+
 
 	// Two models have rudimentary animation (constant rotation on Z)
 	//animated.push_back(anim);
@@ -535,6 +541,34 @@ void Scene::InitializeScene()
 // Procedure DrawScene is called whenever the scene needs to be drawn.
 void Scene::DrawScene()
 {
+	int pos = 0;
+	std::vector<float> tempFloats(2 * HamBlock.HamN);
+	for (int k = 0; k < HamBlock.HamN; k++) {
+		int kk = k;
+		float u = 0.f;
+		//for (float p = 0.5f, int kk = k, float u = 0.0f; kk; p *= 0.5f, kk >>= 1)
+		for (float p = 0.5f; kk; p *= 0.5f)
+		{
+			if (kk & 1)
+			{
+				u += p;
+			}
+			kk >>= 1;
+		}
+		float v = (k + 0.5f) / HamBlock.HamN;
+		tempFloats[pos++] = u;
+		tempFloats[pos++] = v;
+
+
+
+	}
+
+	for (int x = 0; x<2 * HamBlock.HamN; x++)
+	{
+		HamBlock.hammersley[x] = tempFloats[x];
+	}
+
+
 
     // Calculate the light's position.
     float lPos[4] = {
@@ -1000,6 +1034,14 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			loc = glGetUniformLocation(programId, "height");
 			glUniform1i(loc, height);
 			CHECKERROR;
+
+
+			loc = glGetUniformLocation(programId, "skyWidth");
+			glUniform1i(loc, HDRskydome->HDRwidth);
+
+			loc = glGetUniformLocation(programId, "skyHeight");
+			glUniform1i(loc, HDRskydome->HDRheight);
+
 
 			//End 'pass gBuffer to specified shader' block	
 

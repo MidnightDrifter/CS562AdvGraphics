@@ -44,6 +44,7 @@ uniform vec3 ambient;
 
 uniform int width;
 uniform int height;
+uniform int skyWidth, skyHeight;
 
 uniform mat4 WorldInverse;
 
@@ -170,7 +171,7 @@ vec3 outColor = vec3(0,0,0);
 //vec3 inColor = texture2D(skydomeTexture, skyTexCoord).xyz;
 //inColor = pow(inColor, vec3(2.2));
 
-		vec3 R = 2*dot(N,V)*N - V;	
+		vec3 R = normalize(2*dot(N,V)*N - V);	
 
 
 if(texture2D(gBuffer3,myPixelCoordinate).w == skyId)
@@ -185,7 +186,7 @@ vec3 D = -1*V;
 //vec2 skyTexCoord= vec2(0.5f - atan(D.y,D.x), -acos(D.z)/PI);  //Flip the acos to flip the skydome
 
 
-vec2 skyTexCoord= vec2(0.5f - atan(D.y,D.x)/(2*PI), -acos(D.z)/PI);  //Flip this to flip skysphere
+vec2 skyTexCoord= vec2(0.5f - atan(D.y,D.x)/(2*PI), acos(D.z)/PI);  //Flip this to flip skysphere
 vec3 skyColor = texture(skydomeTexture,skyTexCoord).xyz;
 
 //skyColor = vec3(1.f,0.f,0.f);
@@ -227,20 +228,27 @@ return;
 		for(int i =0; i<2*HamN;i+=2)
 		{
 		vec2 randTexCoord = vec2(hammersley[i], hammersley[i+1]);
-		randTexCoord.y = (acos(pow(randTexCoord.y, (1/(shininess+1)))))/PI;
+		randTexCoord.y = (  acos(  pow(randTexCoord.y, (1/(shininess+1)  )  )  )  )/PI;
 		
-		L = vec3( cos(2*PI*(0.5-randTexCoord.x))*sin(PI*randTexCoord.y),  sin(2*PI*(0.5-randTexCoord.x))*sin(PI*randTexCoord.y),  cos(PI*randTexCoord.y)	);
+		L = normalize( vec3(    cos(2*PI*(0.5-randTexCoord.x))   *sin(PI*randTexCoord.y)    ,    sin(2*PI*(0.5-randTexCoord.x))*   sin(PI*randTexCoord.y)    ,      cos(PI*randTexCoord.y)	)   );
 		wK = normalize(L.x * A + L.y * B + L.z * R);
 
 	//	float bigLog = log2(1.0*width*height/HamN);
 	//	float dLog = log2(1.0*width*height/HamN);
 
-		level = (  (0.5)* log2(1.0*width*height/HamN)  ) - ( 0.5* log2(dValue(wK,V,N,shininess)/4)   ) ;  //Check this--might use L instead of wK
+	//Using SCREEN SPACE width & height
+		level = (  (0.5)* log2(1.0*width*height/HamN)  ) - ( 0.5* log2(dValue(L,V,N,shininess)/4)   ) ;  //Check this--might use L instead of wK
+
+	
+			//Using HDR dimensions
+		//	level = (  (0.5)* log2(1.0*skyWidth*skyHeight/HamN)  ) - ( 0.5* log2(dValue(L,V,N,shininess)/4)   ) ;  //Check this--might use L instead of wK
+
+	
 		lightIntensity = textureLod(skydomeTexture, randTexCoord,level).xyz;   //Check this line later--might need to raise to that 2.2 power
 		lightIntensity = pow(lightIntensity,vec3(2.2));
 
 		monteCarloSum += (gValue(wK,V,N) * fValue(wK,V,N,specular)*lightIntensity*max(0,dot(wK,N)));
-
+		//  monteCarloSum += (gValue(wK,V,N) * fValue(wK,V,N,specular)*lightIntensity*(dot(wK,N)));	
 		}
 
 
@@ -259,7 +267,7 @@ return;
 		outColor = pow(outColor, vec3(contrast/2.2));
 
 
-
+		gl_FragColor.xyz = outColor;
   //gl_FragColor.xyz = ambient;
 
 

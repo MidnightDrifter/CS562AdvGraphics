@@ -18,7 +18,7 @@
 #include "fbo.h"
 #include <vector>
 
-#define HammersleyN 25
+#define HammersleyN 40
 
 enum ObjectIds {
     nullId	= 0,
@@ -140,8 +140,11 @@ public:
     //void append(Object* m) { objects.push_back(m); }
 
 
-	float exposure = 10.f;
-	float contrast = 10.f;
+	float exposure = 6.f;
+	float contrast = 1.f;
+
+	const vec3 teapotSpecular = vec3(0.9);
+	const vec3 teapotDiffuse = vec3(0.5);
 
 
     void InitializeScene();

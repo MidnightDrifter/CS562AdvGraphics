@@ -11,10 +11,10 @@ class Texture
 {
  public:
     unsigned int textureId;
-    
-
+	int HDRwidth, HDRheight;
+		
 	//Sean added this
-	Texture() : textureId(0) {}
+	Texture() : textureId(0), HDRwidth(-1), HDRheight(-1) {}
 	Texture(int width, int height);
 
 
