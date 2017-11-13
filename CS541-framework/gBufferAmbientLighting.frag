@@ -89,7 +89,13 @@ vec3 L = normalize(lVec);
 vec3 V = normalize(eVec);
 vec3 H = normalize(lVec+eVec);
 
-return 1/(4*pow(dot(L,H),2));
+
+float LH = max(0,dot(L,H));
+float denominator = 4* pow(LH,2);
+
+return 1/denominator;
+
+//return 1/(4*pow(max(0,dot(L,H)),2));
 
 }
 
@@ -102,8 +108,12 @@ vec3 L = normalize(lVec);
 vec3 V = normalize(eVec);
 vec3 H = normalize(lVec+eVec);
 
+float NH = max(0,dot(N,H));
+float numerator = 2+alpha;
+float numerator2 = pow(NH,alpha);
+float denominator = 2*PI;
 
-return ((2+alpha)/(PI*2))*(pow(dot(N,H),alpha));
+return (numerator * numerator2)/denominator;    //((2+alpha)/(PI*2))*(pow(max(dot(N,H),0),alpha));
 
 
 }
@@ -117,8 +127,9 @@ vec3 L = normalize(lVec);
 vec3 V = normalize(eVec);
 vec3 H = normalize(lVec+eVec);
 
-
-return spec + ((1-spec)*(pow((1-dot(L,H)),5)));
+float LH = max(0,dot(L,H));
+float powerTerm = pow(1-LH,5);
+return spec + ( (1-spec) * (powerTerm) );
 
 
 }
@@ -153,6 +164,11 @@ void main()
 	//float LN = max(dot(L,N),0.0f);
 
 
+
+
+	//Lin. Color Space for input colors
+	diffuse = pow(diffuse,vec3(2.2));
+	specular = pow(specular,vec3(2.2));
 
 
 //	gl_FragColor.xyz = N;
@@ -191,9 +207,33 @@ vec3 skyColor = texture(skydomeTexture,skyTexCoord).xyz;
 
 //skyColor = vec3(1.f,0.f,0.f);
 
-gl_FragColor.xyz = pow(skyColor, vec3(contrast/2.2)); //  Check this  ???
+outColor = pow(skyColor, vec3(contrast/2.2));
+//outColor = skyColor;
+/*
+		if(outColor.x > 1 || outColor.x <0)
+		{
+		outColor.x = pow( (exposure*outColor.x)/((exposure*outColor.x) + 1) , contrast/2.2);
+		}
 
+		
+		if(outColor.y > 1 || outColor.y <0)
+		{
+		outColor.y = pow((exposure*outColor.y)/((exposure*outColor.y) + 1) , contrast/2.2);
+		}
 
+		
+		if(outColor.z > 1 || outColor.z <0)
+		{
+		outColor.z = pow((exposure*outColor.z)/((exposure*outColor.z) + 1), contrast/2.2);
+		}
+*/		
+
+		
+
+		
+//glFrag_Color.xyz = pow(skyColor, vec3(contrast/2.2)); //  Check this  ???
+
+gl_FragColor.xyz = outColor.xyz;
 
 //Lin. Color Space & Tone Mapping
 
@@ -228,27 +268,28 @@ return;
 		for(int i =0; i<2*HamN;i+=2)
 		{
 		vec2 randTexCoord = vec2(hammersley[i], hammersley[i+1]);
-		randTexCoord.y = (  acos(  pow(randTexCoord.y, (1/(shininess+1)  )  )  )  )/PI;
+	  	randTexCoord.y = (  acos(  pow(randTexCoord.y, (1/(shininess+1)  )  )  )  )/PI;
 		
-		L = normalize( vec3(    cos(2*PI*(0.5-randTexCoord.x))   *sin(PI*randTexCoord.y)    ,    sin(2*PI*(0.5-randTexCoord.x))*   sin(PI*randTexCoord.y)    ,      cos(PI*randTexCoord.y)	)   );
+		L = normalize( vec3(    cos(   2*PI*(0.5-randTexCoord.x)  )   *  sin(  PI*randTexCoord.y  )    ,    sin(2*PI*(0.5-randTexCoord.x))*   sin(PI*randTexCoord.y)    ,      cos(PI*randTexCoord.y)	)   );
 		wK = normalize(L.x * A + L.y * B + L.z * R);
 
 	//	float bigLog = log2(1.0*width*height/HamN);
 	//	float dLog = log2(1.0*width*height/HamN);
 
 	//Using SCREEN SPACE width & height
-		level = (  (0.5)* log2(1.0*width*height/HamN)  ) - ( 0.5* log2(dValue(L,V,N,shininess)/4)   ) ;  //Check this--might use L instead of wK
+//		level = (  (0.5)* log2(1.0*width*height/HamN)  ) - ( 0.5* log2(dValue(wK,V,N,shininess)/4)   ) ;  //Check this--might use L instead of wK
 
 	
 			//Using HDR dimensions
-		//	level = (  (0.5)* log2(1.0*skyWidth*skyHeight/HamN)  ) - ( 0.5* log2(dValue(L,V,N,shininess)/4)   ) ;  //Check this--might use L instead of wK
+			level = (  (0.5)* log2(1.0*skyWidth*skyHeight/HamN)  ) - ( 0.5* log2(dValue(wK,V,N,shininess)/4)   ) ;  //Check this--might use L instead of wK
 
 	
 		lightIntensity = textureLod(skydomeTexture, randTexCoord,level).xyz;   //Check this line later--might need to raise to that 2.2 power
+		//lightIntensity = texture(skydomeTexture,randTexCoord).xyz;
 		lightIntensity = pow(lightIntensity,vec3(2.2));
 
-		monteCarloSum += (gValue(wK,V,N) * fValue(wK,V,N,specular)*lightIntensity*max(0,dot(wK,N)));
-		//  monteCarloSum += (gValue(wK,V,N) * fValue(wK,V,N,specular)*lightIntensity*(dot(wK,N)));	
+		//monteCarloSum += (gValue(wK,V,N) * fValue(wK,V,N,specular)*lightIntensity*max(0,dot(wK,N)));
+		  monteCarloSum += (gValue(wK,V,N) * fValue(wK,V,N,specular)*lightIntensity*(dot(wK,N)));	
 		}
 
 
@@ -257,14 +298,38 @@ return;
 
 		//Diffuse bit--just read from irradiance map
 		vec2 irradianceTexCoord = vec2(0.5-(atan(N.y,N.x)/(2*PI)), acos(N.z)/PI);   //vec2( 0.5−(atan(N.y ,N.x)/(2*PI) ), acos(N.z)/PI );
-		diffuseApprox = (diffuse/PI) * texture(irradianceMap, irradianceTexCoord).xyz;
+		diffuseApprox = (diffuse/vec3(PI)) *texture(irradianceMap, irradianceTexCoord).xyz;    //pow(texture(irradianceMap, irradianceTexCoord).xyz, vec3(2.2));
 
 
 
 		outColor = diffuseApprox + monteCarloSum;
+		//outColor = diffuseApprox;
+		//outColor = monteCarloSum;
 
-		outColor = ((exposure*outColor)/((exposure*outColor) + vec3(1,1,1)));
-		outColor = pow(outColor, vec3(contrast/2.2));
+
+	//	outColor = pow(texture(irradianceMap,irradianceTexCoord).xyz, vec3(2.2));
+	//	outColor = ((exposure*outColor)/((exposure*outColor) + vec3(1,1,1)));
+		outColor = pow(outColor,vec3(1/2.2));
+		
+		
+		if(outColor.x > 1 || outColor.x <0)
+		{
+		outColor.x = pow( (exposure*outColor.x)/((exposure*outColor.x) + 1) , contrast/2.2);
+		}
+
+		
+		if(outColor.y > 1 || outColor.y <0)
+		{
+		outColor.y = pow((exposure*outColor.y)/((exposure*outColor.y) + 1) , contrast/2.2);
+		}
+
+		
+		if(outColor.z > 1 || outColor.z <0)
+		{
+		outColor.z = pow((exposure*outColor.z)/((exposure*outColor.z) + 1), contrast/2.2);
+		}
+
+		//outColor = pow(outColor, vec3(contrast/2.2));
 
 
 		gl_FragColor.xyz = outColor;

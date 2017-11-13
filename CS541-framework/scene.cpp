@@ -432,7 +432,7 @@ void Scene::InitializeScene()
     //Replace teapot with sphere for Earth
 	//Object* teapot = new Object(TeapotPolygons, teapotId, vec3(0.5, 0.5, 0.1), vec3(0.5, 0.5, 0.5), 120);
 //	Object* teapot = new Object(TeapotPolygons, teapotId, vec3(0.5, 0.5, 0.1), vec3(0.5, 0.5, 0.5), 120);
-	Object* teapot = new Object(TeapotPolygons, teapotId, teapotDiffuse, teapotSpecular, 120);
+	Object* teapot = new Object(TeapotPolygons, teapotId, teapotDiffuse, teapotSpecular, teapotShininess);
 	Object* podium = new Object(BoxPolygons, boxId,
                                 vec3(0.25, 0.25, 0.1), vec3(0.3, 0.3, 0.3), 10);
     
@@ -496,7 +496,7 @@ void Scene::InitializeScene()
     // Two models have rudimentary animation (constant rotation on Z)
     animated.push_back(anim);
 
-    objectRoot->add(podium, Translate(0,0,0));
+//    objectRoot->add(podium, Translate(0,0,0));
     objectRoot->add(anim, Translate(0,0,0));
     objectRoot->add(teapot, Translate(0.0,0,1.5)*TeapotPolygons->modelTr);
 	//objectRoot->add(earth, Translate(0.0, 0, 1.5)*SpherePolygons->modelTr);

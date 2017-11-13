@@ -9,7 +9,7 @@
 
 uniform vec3 lightPos;
 uniform mat4 WorldView;
-uniform mat4 WI;
+uniform mat4 WorldInverse;
 uniform mat4 WorldProj;
 uniform mat4 ModelTr;
 uniform mat4 NormalTr;
@@ -40,7 +40,7 @@ void main()
     lightVec = lightPos - worldPos.xyz;
 	//eyeVec = (WorldInverse * vec4(0.f, 0.f, 0.f, 1.f)).xyz-worldPos.xyz;
     
-	eyeVec = (WI * vec4(0.f, 0.f, 0.f, 1.f)).xyz-worldPos.xyz;
+	eyeVec = (WorldInverse * vec4(0.f, 0.f, 0.f, 1.f)).xyz-worldPos.xyz;
 	texCoord = vertexTexture; 
 
 	//shadowCoord = ShadowMatrix*ModelTr*vertex;
