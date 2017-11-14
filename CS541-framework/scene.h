@@ -140,12 +140,12 @@ public:
     //void append(Object* m) { objects.push_back(m); }
 
 
-	float exposure = 1.f;
+	float exposure = 10.f;
 	float contrast = 1.f;
 
-	const vec3 teapotSpecular = vec3(0.9);
+	const vec3 teapotSpecular = vec3(0.9, 0.75,0);
 	const vec3 teapotDiffuse = vec3(0.1);
-	const float teapotShininess = 1000;
+	const float teapotShininess = 420;
 
 
     void InitializeScene();

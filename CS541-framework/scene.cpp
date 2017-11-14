@@ -93,7 +93,7 @@ Object* SphereOfSpheres(Shape* SpherePolygons)
             vec3 color = HSV2RGB(angle/360.0, 1.0f-2.0f*row/PI, 1.0f);
 
             Object* sp = new Object(SpherePolygons, spheresId,
-                                    color, vec3(1.0, 1.0, 1.0), 120.0);
+                                    color, vec3(1.0, 1.0, 1.0), 6.0);
             float s = sin(row);
             float c = cos(row);
             ob->add(sp, Rotate(2,angle)*Translate(c,0,s)*Scale(0.075*c,0.075*c,0.075*c));
@@ -977,6 +977,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
 
+
 			HDRskydome->Bind(5);
 			loc = glGetUniformLocation(programId, "skydomeTexture");
 			glUniform1i(loc, 5);
@@ -1042,6 +1043,9 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			loc = glGetUniformLocation(programId, "skyHeight");
 			glUniform1i(loc, HDRskydome->HDRheight);
 
+			loc = glGetUniformLocation(programId, "HamN");
+			int t = HammersleyN;
+			glUniform1i(loc, t);
 
 			//End 'pass gBuffer to specified shader' block	
 
@@ -1050,14 +1054,14 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			
 
 			unsigned int id1, bindpoint1;
-			glGenBuffers(1, &id1);
-			bindpoint1 = 4;
-			glBindBufferBase(GL_UNIFORM_BUFFER, bindpoint1, id1);
-			glBufferData(GL_UNIFORM_BUFFER, sizeof(HamBlock), &HamBlock, GL_STATIC_DRAW);
+		//	glGenBuffers(1, &id1);
+		//	bindpoint1 = 4;
+		//	glBindBufferBase(GL_UNIFORM_BUFFER, bindpoint1, id1);
+		//	glBufferData(GL_UNIFORM_BUFFER, sizeof(HamBlock), &HamBlock, GL_STATIC_DRAW);
 			CHECKERROR;
-			loc = glGetUniformBlockIndex(programId, "HammersleyBlock");
+		//	loc = glGetUniformBlockIndex(programId, "HammersleyBlock");
 			CHECKERROR;
-			glUniformBlockBinding(programId, loc, bindpoint1);
+		//	glUniformBlockBinding(programId, loc, bindpoint1);
 			CHECKERROR;
 			FSQ->Draw(gBufferAmbientLighting,Identity);   //Maybe need projection transform to orient FSQ properly?
 

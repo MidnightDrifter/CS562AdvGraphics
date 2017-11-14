@@ -12,6 +12,7 @@
 //  To draw FSQ, just:    
 //gl_Position = vec4(quadVertices[gl_VertexID], 0.0, 1.0);
 
+uniform mat4 WorldInverse, ModelTr;
 in vec4 vertex;
 //in vec3 vertexNormal;
 //in vec2 vertexTexture;
@@ -20,7 +21,7 @@ in vec4 vertex;
 //out vec3 normalVec, lightVec;
 //out vec2 texCoord;
 //uniform vec3 lightPos;
-
+out vec3 eyePos;
 void main()
 {      
 
@@ -31,8 +32,8 @@ gl_Position =vertex;
 
     //gl_Position = WorldProj*WorldView*ModelTr*vertex;
     
-    //vec3 worldPos = (ModelTr*vertex).xyz;
-
+    vec3 worldPos = (ModelTr*vertex).xyz;
+	eyePos = (WorldInverse * vec4(0.f, 0.f, 0.f, 1.f)).xyz-worldPos;
     //normalVec = vertexNormal*mat3(NormalTr); 
     //lightVec = lightPos - worldPos;
 

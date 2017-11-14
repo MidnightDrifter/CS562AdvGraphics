@@ -1,7 +1,7 @@
 ﻿/////////////////////////////////////////////////////////////////////////
 // Pixel shader for lighting
 ////////////////////////////////////////////////////////////////////////
-#version 330
+#version 400
 
 // These definitions agree with the ObjectIds enum in scene.h
 const int     nullId	= 0;
@@ -18,6 +18,7 @@ const int     spheresId	= 10;
 const float PI = 3.1415926535897932384626433832795;
 //in vec3 normalVec, lightVec;
 //in vec2 texCoord;
+in vec3 eyeVec;
 
 //uniform int objectId;
 //uniform vec3 diffuse;
@@ -31,12 +32,13 @@ uniform sampler2D gBuffer3;  //normalVec.xyz
 uniform sampler2D skydomeTexture;
 uniform sampler2D irradianceMap;
 
+uniform int HamN;
 //uniform sampler2D 
-
+/*
 uniform HammersleyBlock {
 int HamN;
 float hammersley[2*100]; };
-
+*/
 
 
 
@@ -52,6 +54,14 @@ uniform float exposure;
 uniform float contrast;
 
 
+//Shamelessly pulled from online
+vec2 Hammersley(uint i, uint N)
+{
+  return vec2(
+    float(i) / float(N),
+    float(bitfieldReverse(i)) * 2.3283064365386963e-10
+  );
+}
 
 
 
@@ -151,7 +161,8 @@ void main()
 
 
  	vec2 myPixelCoordinate = vec2(gl_FragCoord.x/width, gl_FragCoord.y/height);  //I forget the call for this fug
-	
+	//gl_FragColor.xy = myPixelCoordinate;
+	//return;
 //	vec3 worldPos = texture2D(gBuffer0,myPixelCoordinate).xyz;
 //	float  worldPosDepth = texture2D(gBuffer0,myPixelCoordinate).w;
 	
@@ -178,7 +189,7 @@ void main()
 
 //Lin. Color Space & Tone Mapping
 
-	//vec2 myPixelCoordinate = vec2(gl_FragCoord.x/ width, gl_FragCoord.y/height);  
+//	vec2 myPixelCoordinate = vec2(gl_FragCoord.x/ width, gl_FragCoord.y/height);  
 
 	vec3 worldPos = texture2D(gBuffer0,myPixelCoordinate).xyz;
 		
@@ -187,7 +198,8 @@ vec3 outColor = vec3(0,0,0);
 //vec3 inColor = texture2D(skydomeTexture, skyTexCoord).xyz;
 //inColor = pow(inColor, vec3(2.2));
 
-		vec3 R = normalize(2*dot(N,V)*N - V);	
+		vec3 R = 2*dot(N,V)*N-V;
+		R = normalize(R);	
 
 
 if(texture2D(gBuffer3,myPixelCoordinate).w == skyId)
@@ -207,8 +219,8 @@ vec3 skyColor = texture(skydomeTexture,skyTexCoord).xyz;
 
 //skyColor = vec3(1.f,0.f,0.f);
 
-outColor = pow(skyColor, vec3(contrast/2.2));
-//outColor = skyColor;
+//outColor = pow(skyColor, vec3(contrast/2.2));
+outColor = pow(skyColor, vec3(2.2));
 /*
 		if(outColor.x > 1 || outColor.x <0)
 		{
@@ -228,7 +240,8 @@ outColor = pow(skyColor, vec3(contrast/2.2));
 		}
 */		
 
-		
+		outColor = (vec3(exposure)*outColor) / (vec3(exposure)*outColor + vec3(1));
+		outColor = pow(outColor,vec3(contrast/2.2));
 
 		
 //glFrag_Color.xyz = pow(skyColor, vec3(contrast/2.2)); //  Check this  ???
@@ -254,9 +267,9 @@ return;
 
 		vec3 A = normalize(cross(vec3(0,0,1), R));
 		vec3 B = normalize(cross(R,A));
-		vec3 L, lightIntensity,wK, diffuseApprox;
+		
 		vec3 monteCarloSum = vec3(0,0,0);
-		float level;
+		//float level;
 
 		//float monteCarloSum=0;
 
@@ -265,53 +278,70 @@ return;
 		//float gValue = 1 / (pow(LH,2)*4);   //Raised to power of 2, no need to care about negative vals -- maybe div. by 0 though
 
 
-		for(int i =0; i<2*HamN;i+=2)
+		for(int i =0; i<HamN;i++)
 		{
-		vec2 randTexCoord = vec2(hammersley[i], hammersley[i+1]);
+		vec2 randTexCoord = Hammersley(i,HamN);   // vec2(hammersley[i], hammersley[i+1]);
 	  	randTexCoord.y = (  acos(  pow(randTexCoord.y, (1/(shininess+1)  )  )  )  )/PI;
 		
-		L = normalize( vec3(    cos(   2*PI*(0.5-randTexCoord.x)  )   *  sin(  PI*randTexCoord.y  )    ,    sin(2*PI*(0.5-randTexCoord.x))*   sin(PI*randTexCoord.y)    ,      cos(PI*randTexCoord.y)	)   );
-		wK = normalize(L.x * A + L.y * B + L.z * R);
+		vec3 L = normalize( vec3(    cos(   2*PI*(0.5-randTexCoord.x)  )   *  sin(  PI*randTexCoord.y  )    ,    sin(2*PI*(0.5-randTexCoord.x))*   sin(PI*randTexCoord.y)    ,      cos(PI*randTexCoord.y)	)   );
+		vec3 wK = normalize(L.x * A + L.y * B + L.z * R);
+
+		vec2 wKTexCoord = vec2(0.5-(atan(wK.y,wK.x)/(2*PI)), acos(wK.z)/PI);
+
+		//vec2 LTexCoord =  vec2(0.5-(atan(L.y,L.x)/(2*PI)), acos(L.z)/PI);
+
 
 	//	float bigLog = log2(1.0*width*height/HamN);
 	//	float dLog = log2(1.0*width*height/HamN);
 
 	//Using SCREEN SPACE width & height
-//		level = (  (0.5)* log2(1.0*width*height/HamN)  ) - ( 0.5* log2(dValue(wK,V,N,shininess)/4)   ) ;  //Check this--might use L instead of wK
+	//	float	level = (  (0.5)* log2(1.0*width*height/HamN)  ) - ( 0.5* log2(dValue(wK,V,N,shininess)/4)   ) ;  //Check this--might use L instead of wK
 
 	
 			//Using HDR dimensions
-			level = (  (0.5)* log2(1.0*skyWidth*skyHeight/HamN)  ) - ( 0.5* log2(dValue(wK,V,N,shininess)/4)   ) ;  //Check this--might use L instead of wK
+		float level = (  (0.5)* log2(1.0*skyWidth*skyHeight/HamN)  ) - ( 0.5* log2(dValue(wK,V,N,shininess)/4)   ) ;  //Check this--might use L instead of wK
 
 	
-		lightIntensity = textureLod(skydomeTexture, randTexCoord,level).xyz;   //Check this line later--might need to raise to that 2.2 power
-		//lightIntensity = texture(skydomeTexture,randTexCoord).xyz;
+		vec3 lightIntensity = textureLod(skydomeTexture, wKTexCoord,level).xyz;   //Check this line later--might need to raise to that 2.2 power
+		//lightIntensity = texture(skydomeTexture,wKTexCoord).xyz;
 		lightIntensity = pow(lightIntensity,vec3(2.2));
 
-		//monteCarloSum += (gValue(wK,V,N) * fValue(wK,V,N,specular)*lightIntensity*max(0,dot(wK,N)));
-		  monteCarloSum += (gValue(wK,V,N) * fValue(wK,V,N,specular)*lightIntensity*(dot(wK,N)));	
+
+		//vec3 lightIntensity = texture(skydomeTexture,wKTexCoord).xyz;
+		//vec3 H = normalize(wK+V);
+
+		monteCarloSum += (gValue(wK,V,N) * fValue(wK,V,N,specular)*lightIntensity*max(0,dot(wK,N)));
+		//  monteCarloSum += (gValue(wK,V,N) * fValue(wK,V,N,specular)*lightIntensity*(dot(wK,N)));	
 		}
 
 
 
-		monteCarloSum /= vec3(HamN);   //Specular bit!!
+		//monteCarloSum /= vec3(HamN);   //Specular bit!!
+		monteCarloSum.x /= (2*HamN);
+		monteCarloSum.y /= (2*HamN);
+		monteCarloSum.z /= (2*HamN);
+
+
+
 
 		//Diffuse bit--just read from irradiance map
 		vec2 irradianceTexCoord = vec2(0.5-(atan(N.y,N.x)/(2*PI)), acos(N.z)/PI);   //vec2( 0.5−(atan(N.y ,N.x)/(2*PI) ), acos(N.z)/PI );
-		diffuseApprox = (diffuse/vec3(PI)) *texture(irradianceMap, irradianceTexCoord).xyz;    //pow(texture(irradianceMap, irradianceTexCoord).xyz, vec3(2.2));
+		vec3 diffuseApprox = (diffuse/(PI)) *  texture(irradianceMap, irradianceTexCoord).xyz;    //pow(texture(irradianceMap, irradianceTexCoord).xyz, vec3(2.2));
+		//diffuseApprox = pow(diffuseApprox, vec3(2.2));
+		//diffuseApprox = (diffuse/PI) * (pow(texture(irradianceMap, irradianceTexCoord).xyz,vec3(2.2)));
 
 
 
 		outColor = diffuseApprox + monteCarloSum;
 		//outColor = diffuseApprox;
-		//outColor = monteCarloSum;
+	//	outColor = monteCarloSum;
 
 
 	//	outColor = pow(texture(irradianceMap,irradianceTexCoord).xyz, vec3(2.2));
-	//	outColor = ((exposure*outColor)/((exposure*outColor) + vec3(1,1,1)));
-		outColor = pow(outColor,vec3(1/2.2));
+		outColor = (  (exposure*outColor)  /  (  (exposure*outColor) + vec3(1) )   );
+		outColor = pow(outColor,vec3(contrast/2.2));
 		
-		
+		/*
 		if(outColor.x > 1 || outColor.x <0)
 		{
 		outColor.x = pow( (exposure*outColor.x)/((exposure*outColor.x) + 1) , contrast/2.2);
@@ -328,14 +358,22 @@ return;
 		{
 		outColor.z = pow((exposure*outColor.z)/((exposure*outColor.z) + 1), contrast/2.2);
 		}
-
+		*/
 		//outColor = pow(outColor, vec3(contrast/2.2));
 
 
 		gl_FragColor.xyz = outColor;
+	//gl_FragColor.xy = irradianceTexCoord;
+
+	//vec3 temp = (vec3(diffuse)/PI)*texture(irradianceMap, irradianceTexCoord).xyz;
+
+	//temp = (vec3(exposure) * temp) / (vec3(exposure) * temp + vec3(1));
+	//gl_FragColor.xyz = pow(temp, vec3(contrast/2.2));
+
+		//gl_FragColor.xyz = (vec3(1)/PI)*5*texture(irradianceMap, irradianceTexCoord).xyz;
   //gl_FragColor.xyz = ambient;
 
-
+  //gl_FragColor.xyz = *texture(irradianceMap,myPixelCoordinate).xyz; 
 
  // gl_FragColor.xyz = N;
 }
