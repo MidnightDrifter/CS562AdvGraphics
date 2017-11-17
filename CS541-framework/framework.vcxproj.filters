@@ -49,6 +49,12 @@
     <Filter Include="Shader Files\Shadow Blur Compute Shader">
       <UniqueIdentifier>{9167e7ce-329e-4746-9275-06050d890d4f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shader Files\Ambient Occlusion">
+      <UniqueIdentifier>{b3385997-ec64-45f3-85fe-dd05d60cac67}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shader Files\Ambient Occlusion Bilateral Blur Compute Shader">
+      <UniqueIdentifier>{f5bdc93c-ca94-4ba6-8e25-2ef19334a425}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="framework.cpp">
@@ -192,6 +198,15 @@
     </None>
     <None Include="shadowBlurCompute.comp">
       <Filter>Shader Files\Shadow Blur Compute Shader</Filter>
+    </None>
+    <None Include="ambientOcclusion.frag">
+      <Filter>Shader Files\Ambient Occlusion</Filter>
+    </None>
+    <None Include="ambientOcclusion.vert">
+      <Filter>Shader Files\Ambient Occlusion</Filter>
+    </None>
+    <None Include="ambientOcclusionBilateralBlurCompute.comp">
+      <Filter>Shader Files\Ambient Occlusion Bilateral Blur Compute Shader</Filter>
     </None>
   </ItemGroup>
 </Project>

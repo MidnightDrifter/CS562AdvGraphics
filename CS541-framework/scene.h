@@ -111,10 +111,10 @@ public:
 	  //So much reorganizing!
 									
 	// Shader programs
-    ShaderProgram* lightingProgram, *shadowProgram, *reflectionProgramTop, *reflectionProgramBot, *gBufferShader, *gBufferGlobalLighting, *gBufferAmbientLighting, *gBufferLocalLighting, *basicOutputShader, *shadowBlurComputeShader;
+    ShaderProgram* lightingProgram, *shadowProgram, *reflectionProgramTop, *reflectionProgramBot, *gBufferShader, *gBufferGlobalLighting, *gBufferAmbientLighting, *gBufferLocalLighting, *basicOutputShader, *shadowBlurComputeShader, *ambientOcclusionBilateralBlurShader, *ambientOcclusionShader;
 
 	//FBOs
-	FBO* shadowTexture,* reflectionTextureTop,* reflectionTextureBot, *gBuffer, *screenOutput, *blurredShadowTexture;
+	FBO* shadowTexture,* reflectionTextureTop,* reflectionTextureBot, *gBuffer, *screenOutput, *blurredShadowTexture, *ambientOcclusionTexture, *ambientOcclusionBlurredTexture;
 
 	//Textures - testin'
 	Texture* test;
@@ -152,6 +152,10 @@ public:
 	const vec3 teapotSpecular = vec3(0.9, 0.75,0);
 	const vec3 teapotDiffuse = vec3(0.1);
 	const float teapotShininess = 420;
+
+
+	const float rangeOfInfluence = 10.f;
+	const int numSamples = 13;
 
 
     void InitializeScene();

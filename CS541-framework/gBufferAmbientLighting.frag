@@ -42,8 +42,8 @@ float hammersley[2*100]; };
 
 
 
-uniform vec3 ambient;
 
+uniform vec3 ambient;
 uniform int width;
 uniform int height;
 uniform int skyWidth, skyHeight;
@@ -52,6 +52,7 @@ uniform mat4 WorldInverse;
 
 uniform float exposure;
 uniform float contrast;
+
 
 
 //Shamelessly pulled from online
@@ -147,6 +148,7 @@ return spec + ( (1-spec) * (powerTerm) );
 
 void main()
 {
+
    // vec3 N = normalize(normalVec);
   //  vec3 L = normalize(lightVec);
 
@@ -363,6 +365,22 @@ return;
 
 
 		gl_FragColor.xyz = outColor;
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 	//gl_FragColor.xy = irradianceTexCoord;
 
 	//vec3 temp = (vec3(diffuse)/PI)*texture(irradianceMap, irradianceTexCoord).xyz;

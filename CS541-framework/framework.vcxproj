@@ -40,6 +40,9 @@
     <ClInclude Include="transform.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="ambientOcclusion.frag" />
+    <None Include="ambientOcclusion.vert" />
+    <None Include="ambientOcclusionBilateralBlurCompute.comp" />
     <None Include="basicOutputShader.frag" />
     <None Include="basicOutputShader.vert" />
     <None Include="gBuffer.frag" />

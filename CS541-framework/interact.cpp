@@ -43,9 +43,18 @@ void ReshapeWindow(int w, int h)
 	//	scene.gBuffer = new FBO();
 //		scene.gBuffer->Unbind();
 		scene.gBuffer->CreateGBuffer(w, h);
-
+		
 	}
 
+	if (scene.ambientOcclusionTexture)
+	{
+		scene.ambientOcclusionTexture->CreateFBO(w, h);
+	}
+
+	if (scene.ambientOcclusionBlurredTexture)
+	{
+		scene.ambientOcclusionBlurredTexture->CreateFBO(w, h);
+	}
 
 
     // Force a redraw

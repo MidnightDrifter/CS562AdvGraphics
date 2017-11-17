@@ -359,9 +359,23 @@ void Scene::InitializeScene()
 	shadowBlurComputeShader->LinkProgram();
 	
 	
+	ambientOcclusionBilateralBlurShader = new ShaderProgram();
+	ambientOcclusionBilateralBlurShader->AddShader("ambientOcclusionBilateralBlurCompute.comp", GL_COMPUTE_SHADER);
 	
-	
-	
+	ambientOcclusionBilateralBlurShader->LinkProgram();
+
+
+	ambientOcclusionShader = new ShaderProgram();
+
+	ambientOcclusionShader->AddShader("ambientOcclusion.vert", GL_VERTEX_SHADER);
+	ambientOcclusionShader->AddShader("ambientOcclusion.frag", GL_FRAGMENT_SHADER);
+
+
+	glBindAttribLocation(ambientOcclusionShader->programId, 0, "vertex");
+	ambientOcclusionShader->LinkProgram();
+
+
+
 	
 	gBufferShader = new ShaderProgram();
 
@@ -462,7 +476,11 @@ void Scene::InitializeScene()
 	screenOutput = new FBO();
 	screenOutput->CreateFBO(width, height);
 	
+	ambientOcclusionTexture = new FBO();
+	ambientOcclusionTexture->CreateFBO(width, height);
 	
+	ambientOcclusionBlurredTexture = new FBO();
+	ambientOcclusionBlurredTexture->CreateFBO(width, height);
 
 //	test = new Texture("grass.jpg");
 
@@ -1001,6 +1019,67 @@ int loc3, programId3;
 
 
 
+//Ambient Occlusion pass
+
+ambientOcclusionShader->Use();
+ambientOcclusionTexture->Bind();
+
+glViewport(0, 0, width, height);
+glClearColor(0.5, 0.5, 0.5, 1.0);
+glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+programId = ambientOcclusionShader->programId;
+
+
+glActiveTexture(GL_TEXTURE6);
+glBindTexture(GL_TEXTURE_2D, gBuffer->renderTargets[0]);
+loc = glGetUniformLocation(programId, "gBuffer0");
+glUniform1i(loc, 6);
+
+
+glActiveTexture(GL_TEXTURE9);
+glBindTexture(GL_TEXTURE_2D, gBuffer->renderTargets[3]);
+loc = glGetUniformLocation(programId, "gBuffer3");
+glUniform1i(loc, 9);
+
+
+
+loc = glGetUniformLocation(programId, "width");
+glUniform1i(loc, width);
+
+//		CHECKERROR;
+
+loc = glGetUniformLocation(programId, "height");
+glUniform1i(loc, height);
+CHECKERROR;
+
+
+loc = glGetUniformLocation(programId, "rangeOfInfluence");
+glUniform1f(loc, rangeOfInfluence);
+
+loc = glGetUniformLocation(programId, "NumSamples");
+glUniform1i(loc, numSamples);
+
+
+
+ambientOcclusionTexture->Unbind();
+ambientOcclusionShader->Unuse();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 		//Start Ambient Light G Buffer Pass
 
 		//screenOutput->Bind();
@@ -1283,9 +1362,99 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			shadowBlurComputeShader->Unuse();
 			CHECKERROR;
 
+
+
+
+
+
+
+
+
+
+			//Ambient Occlusion Bilateral Blur
+
+
+			ambientOcclusionBilateralBlurShader->Use();
+			programId = ambientOcclusionBilateralBlurShader->programId;
+			GLuint blockID;
+			glGenBuffers(1, &blockID); // Generates block
+			int	bindpoint = 3; // Start at zero, increment for other blocks
+			loc = glGetUniformBlockIndex(programId, "blurKernel");
+			glUniformBlockBinding(programId, loc, bindpoint);
+			glBindBufferBase(GL_UNIFORM_BUFFER, bindpoint, blockID);
+			glBufferData(GL_UNIFORM_BUFFER, kernelWidth * sizeof(float), (kernelWeights.data()), GL_STATIC_DRAW);
+			CHECKERROR;
+
+
+
+			loc = glGetUniformLocation(programId, "width");
+			glUniform1i(loc, width);
+
+			//		CHECKERROR;
+
+			loc = glGetUniformLocation(programId, "height");
+			glUniform1i(loc, height);
+			CHECKERROR;
+
+
+
+			loc = glGetUniformLocation(programId, "w");
+			glUniform1i(loc, kernelWidth / 2);
+			CHECKERROR;
+			imageUnit++;
+
+
+			loc = glGetUniformLocation(programId, "src");
+			glBindImageTexture(imageUnit, ambientOcclusionTexture->texture, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+			glUniform1i(loc, imageUnit);
+			// Change GL_READ_ONLY to GL_WRITE_ONLY for output image
+			// Change GL_R32F to GL_RGBA32F for 4 channel images
+			CHECKERROR;
+			imageUnit++;
+			CHECKERROR;
+			loc = glGetUniformLocation(programId, "dst");
+			//	glBindImageTexture(imageUnit, shadowBlurPureTexture->textureId, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+			glBindImageTexture(imageUnit, ambientOcclusionBlurredTexture->texture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+			glUniform1i(loc, imageUnit);
+			CHECKERROR;
+
+
+			glActiveTexture(GL_TEXTURE6);
+			glBindTexture(GL_TEXTURE_2D, gBuffer->renderTargets[0]);
+			loc1 = glGetUniformLocation(programID1, "gBuffer0");
+			glUniform1i(loc1, 6);
+
+
+
+
+			glActiveTexture(GL_TEXTURE9);
+			glBindTexture(GL_TEXTURE_2D, gBuffer->renderTargets[3]);
+			loc1 = glGetUniformLocation(programID1, "gBuffer3");
+			glUniform1i(loc1, 9);
+
 			
+
+			glDispatchCompute(width / 128, height, 1);
+
+
+
+			ambientOcclusionBilateralBlurShader->Unuse();
 			
-			
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 			//Start Global (Shadow-casting) Light G Buffer Pass
 			
 			
