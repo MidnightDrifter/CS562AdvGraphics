@@ -93,7 +93,7 @@ Object* SphereOfSpheres(Shape* SpherePolygons)
             vec3 color = HSV2RGB(angle/360.0, 1.0f-2.0f*row/PI, 1.0f);
 
             Object* sp = new Object(SpherePolygons, spheresId,
-                                    color, vec3(1.0, 1.0, 1.0), 6.0);
+                                    color, vec3(1.0, 1.0, 1.0), 60.0);
             float s = sin(row);
             float c = cos(row);
             ob->add(sp, Rotate(2,angle)*Translate(c,0,s)*Scale(0.075*c,0.075*c,0.075*c));
