@@ -113,6 +113,61 @@ void animate(int value)
     glutTimerFunc(30, animate, 1);
 }
 
+
+
+
+void Scene::SphericalHarmonics(int irradianceWidth, int irradianceHeight, int hdrWidth, int hdrHeight, const std::vector<basicVec3>& vals)
+{
+
+	const float PI = 3.1415926535897932384626433832795;
+	float A[3] = { PI, 2 * PI / 3, PI / 4 };
+	
+	vec3 sphericalHarmonicsCoefficients[9]={ vec3(0),vec3(0),vec3(0),vec3(0),vec3(0),vec3(0),vec3(0),vec3(0),vec3(0) };
+
+
+	//float angles[2] = { 0,0 };
+	vec3 light(0, 0, 0);
+	float deltas[2] = { PI / hdrHeight, 2*PI / hdrWidth };
+	float angles[2] = { 0,0 };
+	vec3 anglesToVector(0, 0, 0);
+
+	for (int i = 0; i < hdrHeight; i++)
+	{
+		for (int j = 0; j < hdrWidth; j++)
+		{
+			light.x = vals[hdrWidth * i + j].x;
+			light.y = vals[hdrWidth * i + j].y;
+			light.z = vals[hdrWidth * i + j].z;
+
+			angles[0] = (PI* (i + 0.5)) / hdrHeight;
+			angles[1] = (2 * PI*(j + 0.5)) / hdrWidth;
+			
+			anglesToVector.x = sinf(angles[0]) * cosf(angles[1]);
+			anglesToVector.y = sinf(angles[0]) * sinf(angles[1]);
+			anglesToVector.z = cosf(angles[1]);
+
+
+
+			sphericalHarmonicsCoefficients[0] = light *  A[0] * sinf(angles[0]) * (0.5f * sqrtf(PI/2)) * deltas[0] * deltas[1];
+			sphericalHarmonicsCoefficients[1] = light *  A[1] * sinf(angles[0]) * (anglesToVector.y * (0.5f * sqrtf(3/PI)))* deltas[0] * deltas[1];
+			sphericalHarmonicsCoefficients[2] = light *  A[1] * sinf(angles[0]) * (anglesToVector.z * (0.5f * sqrtf(3/PI)))* deltas[0] * deltas[1];
+			sphericalHarmonicsCoefficients[3] = light *  A[1] * sinf(angles[0]) * (anglesToVector.x * (0.5f * sqrtf(3/PI)))* deltas[0] * deltas[1];
+			sphericalHarmonicsCoefficients[4] = light *  A[2] * sinf(angles[0]) * (anglesToVector.x * anglesToVector.y * 0.5f*sqrtf(15/PI))* deltas[0] * deltas[1];
+			sphericalHarmonicsCoefficients[5] = light *  A[2] * sinf(angles[0]) * (anglesToVector.y * anglesToVector.z * 0.5f * sqrtf(15 / PI))* deltas[0] * deltas[1];
+			sphericalHarmonicsCoefficients[6] = light *  A[2] * sinf(angles[0]) * ((3 * anglesToVector.z * anglesToVector.z - 1) * (0.25f * sqrtf(5/PI)))* deltas[0] * deltas[1];
+			sphericalHarmonicsCoefficients[7] = light *  A[2] * sinf(angles[0]) * (anglesToVector.x * anglesToVector.z * (0.5f * sqrtf(15/PI)))* deltas[0] * deltas[1];
+			sphericalHarmonicsCoefficients[8] = light *  A[2] * sin(angles[0]) * ((anglesToVector.x * anglesToVector.x - anglesToVector.y * anglesToVector.y) * (0.25f * sqrtf(15/PI)))* deltas[0] * deltas[1];
+		}
+	}
+
+
+
+
+
+}
+
+
+
 ////////////////////////////////////////////////////////////////////////
 // InitializeScene is called once during setup to create all the
 // textures, shape VAOs, and shader programs as well as a number of

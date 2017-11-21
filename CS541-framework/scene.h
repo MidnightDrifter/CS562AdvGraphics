@@ -20,6 +20,10 @@
 
 #define HammersleyN 30
 
+struct basicVec3;
+
+
+
 enum ObjectIds {
     nullId	= 0,
     skyId	= 1,
@@ -139,6 +143,8 @@ public:
 
     //void append(Object* m) { objects.push_back(m); }
 
+	int irradianceWidth = 400;
+	int irradianceHeight = 200;
 
 	float exposure = 10.f;
 	float contrast = 1.f;
@@ -150,5 +156,8 @@ public:
 
     void InitializeScene();
     void DrawScene();
+
+	//void SphericalHarmonics();
+	void SphericalHarmonics(int w, int h, int x, int y, const std::vector<basicVec3>& v);
 
 };
