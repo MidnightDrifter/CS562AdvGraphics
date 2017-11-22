@@ -569,7 +569,7 @@ void Scene::InitializeScene()
     // Two models have rudimentary animation (constant rotation on Z)
     animated.push_back(anim);
 
-//    objectRoot->add(podium, Translate(0,0,0));
+   objectRoot->add(podium, Translate(0,0,0));
     objectRoot->add(anim, Translate(0,0,0));
     objectRoot->add(teapot, Translate(0.0,0,1.5)*TeapotPolygons->modelTr);
 	//objectRoot->add(earth, Translate(0.0, 0, 1.5)*SpherePolygons->modelTr);
@@ -871,7 +871,7 @@ void Scene::DrawScene()
 		
     // Use the lighting shader
 		
-
+		
 		
 		
 
@@ -1062,6 +1062,15 @@ glUniform1f(loc, rangeOfInfluence);
 loc = glGetUniformLocation(programId, "NumSamples");
 glUniform1i(loc, numSamples);
 
+
+loc = glGetUniformLocation(programId, "width");
+glUniform1i(loc, width);
+
+//		CHECKERROR;
+
+loc = glGetUniformLocation(programId, "height");
+glUniform1i(loc, height);
+CHECKERROR;
 
 
 ambientOcclusionTexture->Unbind();

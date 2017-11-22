@@ -49,7 +49,7 @@ for(int j = -w;j<=w;j++)
 {
 vec3 currNormal = normalize(texture(gBuffer3,gpos-ivec2(w,0)).xyz);
 float currDepth = texture(gBuffer0,gpos-ivec2(w,0)).w;
-float currentRangeWeight = (max(0,dot(centerNormal, currNormal)) * (1/sqrt(2*PI*s)) * (exp(    (-1* pow(currDepth-centerDepth,2) ) / (2*s)   ));
+float currentRangeWeight = max(0,dot(centerNormal, currNormal)) * (1/sqrt(2*PI*s) ) * (    exp(    (-1 * pow(currDepth-centerDepth,2) ) / (2*s)   )     );
 sum+= weights[j+w] * v[i+j+w] * currentRangeWeight;    //Multiply weight * pixel value--assuming blurKernel is the set of weights??
 }
 
@@ -65,7 +65,7 @@ for(int k=-w;k<=w;k++)
 
 vec3 currNormal = normalize(texture(gBuffer3,gpos-ivec2(0,w)).xyz);
 float currDepth = texture(gBuffer0,gpos-ivec2(0,w)).w;
-float currentRangeWeight = (max(0,dot(centerNormal, currNormal)) * (1/sqrt(2*PI*s)) * (exp(    (-1* pow(currDepth-centerDepth,2) ) / (2*s)   ));
+float currentRangeWeight = max(0,dot(centerNormal, currNormal)) * (1/sqrt(2*PI*s)) * (exp(    (-1* pow(currDepth-centerDepth,2) ) / (2*s)   ));
 
 
 sum+=weights[k+w]*v[i+k+w];

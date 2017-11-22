@@ -68,9 +68,9 @@ vec2 Hammersley(uint i, uint N)
   );
 }
 
-float SpiralPseudoRandom(ivec2 in)
+float SpiralPseudoRandom(int x,  int y)
 {
- return (30 * in.x ^ in.y) + 10*in.x*in.y;
+ return 1.0*((30 * x ^ y) + 10*x*y);
 
 }
 
@@ -257,7 +257,7 @@ outColor = pow(skyColor, vec3(2.2));
 //glFrag_Color.xyz = pow(skyColor, vec3(contrast/2.2)); //  Check this  ???
 
 
-float AO = max(0, powf((1-AOScale*texture2d(AOTexture,myPixelCoordinate).x),AOContrast ));
+float AO = max(0, pow((1-AOScale*texture2D(AOTexture,myPixelCoordinate).x),AOContrast ));
 outColor.xyz *= vec3(AO);
 
 gl_FragColor.xyz = outColor.xyz;

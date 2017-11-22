@@ -23,23 +23,28 @@ const float PI = 3.1415926535897932384626433832795;
 //uniform vec3 diffuse;
 
 
-float SpiralPseudoRandom(ivec2 in)
+float SpiralPseudoRandom(int x,  int y)
 {
- return (30 * in.x ^ in.y) + 10*in.x*in.y;
+ return 1.0*((30 * x ^ y) + 10*x*y);
 
 }
 
 
 uniform float rangeOfInfluence;  //Ambient occlusion R
-const float aOC = 0.1*rangeOfInfluence;
-const float aOCSquared = aOC*aOC;
-const float ambientOcclusionThreshold = 0.001;
+float aOC = 0.1*rangeOfInfluence;
+ float aOCSquared = aOC*aOC;
+ float ambientOcclusionThreshold = 0.001;
 
 
 uniform sampler2D gBuffer0;  //WorldPos.xyz, worldPosDepth
 uniform sampler2D gBuffer3;  //normalVec.xyz
 uniform int NumSamples;
 //uniform float 
+
+uniform int width, height;
+
+
+
 
 void main()
 {/*
@@ -62,16 +67,19 @@ void main()
 	float  worldPosDepth = texture2D(gBuffer0,myPixelCoordinate).w;
 		vec3 N = normalize(texture2D(gBuffer3,myPixelCoordinate).xyz);
 
-		float out =0;
+		float o =0;
 	
+	int fX = int(gl_FragCoord.x);
+	int fY = int(gl_FragCoord.y);
+
 	for(int i=0;i<NumSamples;i++)
 	{
 	float a = (i+0.5)/NumSamples;
-	float h = (a*R) / worldPosDepth;
-	float theta = (2*PI*a) *(7*NumSamples/9) * SprialPseudoRandom(gl_FragCoord.xy);
+	float h = (a*rangeOfInfluence) / worldPosDepth;
+	float theta = (2*PI*a) *(7.0*NumSamples/9.0) * SpiralPseudoRandom(fX,fY);
+	
 
-
-	vec2 otherPixelCoord = myPixelCoordinate + h*(cosf(theta), sinf(theta));
+	vec2 otherPixelCoord = myPixelCoordinate + h*(cos(theta), sin(theta));
 	vec3 otherPos = texture2D(gBuffer0,otherPixelCoord).xyz;
 	float otherDepth = texture2D(gBuffer0,otherPixelCoord).w;
 	//vec3 otherNorm = 
@@ -80,7 +88,7 @@ void main()
 	if(rangeOfInfluence < length(wI))
 	{
 	
-	out += (max(0,dot(N,wI)- ambientOcclusionThreshold*otherDepth)) / max(aOCSquared,dot(wI,wI));
+	o = o + (max(0,dot(N,wI)- ambientOcclusionThreshold*otherDepth)) / max(aOCSquared,dot(wI,wI));
 
 	}
 
@@ -89,9 +97,9 @@ void main()
 	}
 
 
-	out *= (2*PI*aOC)/NumSamples;
+	o  = o * (2*PI*aOC)/NumSamples;
 
-	gl_FragData[0] = vec4(out);
+	gl_FragData[0].xyzw = vec4(o);
 
 
 }

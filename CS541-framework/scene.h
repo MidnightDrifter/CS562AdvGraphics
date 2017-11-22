@@ -140,13 +140,13 @@ public:
 	
 
  //Full screen quad
-
+	//max(0, dot(centerNormal, currNormal)) * (1 / sqrt(2 * PI*s)) * (exp((-1 * pow(currDepth - centerDepth, 2)) / (2 * s)))
     //void append(Object* m) { objects.push_back(m); }
 
 	int irradianceWidth = 400;
 	int irradianceHeight = 200;
 
-	float exposure = 10.f;
+	float exposure = 20.f;
 	float contrast = 1.f;
 
 	const vec3 teapotSpecular = vec3(0.9, 0.75,0);
@@ -154,7 +154,7 @@ public:
 	const float teapotShininess = 420;
 
 
-	const float rangeOfInfluence = 10.f;
+	const float rangeOfInfluence = 25.f;
 	const int numSamples = 13;
 	const int AOSampleNum = 7;
 	const float AOContrast = 1.f;
