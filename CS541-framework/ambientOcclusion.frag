@@ -23,6 +23,13 @@ const float PI = 3.1415926535897932384626433832795;
 //uniform vec3 diffuse;
 
 
+float SpiralPseudoRandom(ivec2 in)
+{
+ return (30 * in.x ^ in.y) + 10*in.x*in.y;
+
+}
+
+
 uniform float rangeOfInfluence;  //Ambient occlusion R
 const float aOC = 0.1*rangeOfInfluence;
 const float aOCSquared = aOC*aOC;
@@ -55,13 +62,36 @@ void main()
 	float  worldPosDepth = texture2D(gBuffer0,myPixelCoordinate).w;
 		vec3 N = normalize(texture2D(gBuffer3,myPixelCoordinate).xyz);
 
-
+		float out =0;
 	
 	for(int i=0;i<NumSamples;i++)
 	{
+	float a = (i+0.5)/NumSamples;
+	float h = (a*R) / worldPosDepth;
+	float theta = (2*PI*a) *(7*NumSamples/9) * SprialPseudoRandom(gl_FragCoord.xy);
+
+
+	vec2 otherPixelCoord = myPixelCoordinate + h*(cosf(theta), sinf(theta));
+	vec3 otherPos = texture2D(gBuffer0,otherPixelCoord).xyz;
+	float otherDepth = texture2D(gBuffer0,otherPixelCoord).w;
+	//vec3 otherNorm = 
+	vec3 wI = otherPos - worldPos;
+
+	if(rangeOfInfluence < length(wI))
+	{
 	
+	out += (max(0,dot(N,wI)- ambientOcclusionThreshold*otherDepth)) / max(aOCSquared,dot(wI,wI));
+
+	}
+
+
 	
 	}
+
+
+	out *= (2*PI*aOC)/NumSamples;
+
+	gl_FragData[0] = vec4(out);
 
 
 }

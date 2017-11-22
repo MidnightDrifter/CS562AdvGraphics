@@ -1044,6 +1044,8 @@ glUniform1i(loc, 9);
 
 
 
+
+
 loc = glGetUniformLocation(programId, "width");
 glUniform1i(loc, width);
 
@@ -1109,8 +1111,19 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			loc = glGetUniformLocation(programId, "WorldInverse");
 			glUniformMatrix4fv(loc, 1, GL_TRUE, WorldInverse.Pntr());
 
+			loc = glGetUniformLocation(programId, "AOSampleNum");
+			glUniform1f(loc, AOSampleNum);
 
+			loc = glGetUniformLocation(programId, "AOScale");
+			glUniform1f(loc, AOScale);
 
+			loc = glGetUniformLocation(programId, "AOContrast");
+			glUniform1f(loc, AOContrast);
+
+			glActiveTexture(GL_TEXTURE12);
+			glBindTexture(GL_TEXTURE_2D, ambientOcclusionTexture->texture);
+			loc = glGetUniformLocation(programId, "AOTexture");
+			glUniform1i(loc, 12);
 
 			HDRskydome->Bind(5);
 			loc = glGetUniformLocation(programId, "skydomeTexture");
@@ -1376,9 +1389,11 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			ambientOcclusionBilateralBlurShader->Use();
 			programId = ambientOcclusionBilateralBlurShader->programId;
-			GLuint blockID;
+			blockID++;
+			//GLuint blockID;
 			glGenBuffers(1, &blockID); // Generates block
-			int	bindpoint = 3; // Start at zero, increment for other blocks
+			//int	bindpoint = 3; // Start at zero, increment for other blocks
+			bindpoint++;
 			loc = glGetUniformBlockIndex(programId, "blurKernel");
 			glUniformBlockBinding(programId, loc, bindpoint);
 			glBindBufferBase(GL_UNIFORM_BUFFER, bindpoint, blockID);

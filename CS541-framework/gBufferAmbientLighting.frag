@@ -31,6 +31,7 @@ uniform sampler2D gBuffer3;  //normalVec.xyz
 
 uniform sampler2D skydomeTexture;
 uniform sampler2D irradianceMap;
+uniform sampler2D AOTexture;
 
 uniform int HamN;
 //uniform sampler2D 
@@ -53,6 +54,9 @@ uniform mat4 WorldInverse;
 uniform float exposure;
 uniform float contrast;
 
+uniform int AOSampleNum;
+uniform float AOContrast;
+uniform float AOScale;
 
 
 //Shamelessly pulled from online
@@ -64,7 +68,11 @@ vec2 Hammersley(uint i, uint N)
   );
 }
 
+float SpiralPseudoRandom(ivec2 in)
+{
+ return (30 * in.x ^ in.y) + 10*in.x*in.y;
 
+}
 
 /*
 
@@ -247,6 +255,10 @@ outColor = pow(skyColor, vec3(2.2));
 
 		
 //glFrag_Color.xyz = pow(skyColor, vec3(contrast/2.2)); //  Check this  ???
+
+
+float AO = max(0, powf((1-AOScale*texture2d(AOTexture,myPixelCoordinate).x),AOContrast ));
+outColor.xyz *= vec3(AO);
 
 gl_FragColor.xyz = outColor.xyz;
 

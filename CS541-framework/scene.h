@@ -156,7 +156,9 @@ public:
 
 	const float rangeOfInfluence = 10.f;
 	const int numSamples = 13;
-
+	const int AOSampleNum = 7;
+	const float AOContrast = 1.f;
+	const float AOScale = 1.f;
 
     void InitializeScene();
     void DrawScene();
