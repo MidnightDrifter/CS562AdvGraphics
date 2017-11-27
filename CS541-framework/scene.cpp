@@ -254,8 +254,9 @@ void Scene::InitializeScene()
 //		sum += kernelWeights[i];
 //	}
 
+	std::string hdrTex = "textures//14-Hamarikyu_Bridge_B_3k.hdr";
+	std::string hdrTexIrr = "textures//14-Hamarikyu_Bridge_B_3k.irr.hdr";
 	
-
 
  		skydome = new Texture("textures//sky.jpg");
 		HDRskydome = new Texture();

@@ -257,8 +257,7 @@ outColor = pow(skyColor, vec3(2.2));
 //glFrag_Color.xyz = pow(skyColor, vec3(contrast/2.2)); //  Check this  ???
 
 
-float AO = max(0, pow((1-AOScale*texture2D(AOTexture,myPixelCoordinate).x),AOContrast ));
-outColor.xyz *= vec3(AO);
+
 
 gl_FragColor.xyz = outColor.xyz;
 
@@ -353,6 +352,11 @@ return;
 
 	//	outColor = pow(texture(irradianceMap,irradianceTexCoord).xyz, vec3(2.2));
 		outColor = (  (exposure*outColor)  /  (  (exposure*outColor) + vec3(1) )   );
+
+
+
+
+
 		outColor = pow(outColor,vec3(contrast/2.2));
 		
 		/*
@@ -376,6 +380,11 @@ return;
 		//outColor = pow(outColor, vec3(contrast/2.2));
 
 
+		
+		
+		float AO = max(0, pow((1-AOScale*texture2D(AOTexture,myPixelCoordinate).x),AOContrast ));
+		outColor.xyz *= vec3(AO);
+		
 		gl_FragColor.xyz = outColor;
 	
 	

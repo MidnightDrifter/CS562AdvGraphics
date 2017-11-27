@@ -154,7 +154,7 @@ public:
 	const float teapotShininess = 420;
 
 
-	const float rangeOfInfluence = 25.f;
+	const float rangeOfInfluence = 0.1f;
 	const int numSamples = 13;
 	const int AOSampleNum = 7;
 	const float AOContrast = 1.f;
