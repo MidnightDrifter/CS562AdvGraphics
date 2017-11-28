@@ -559,12 +559,14 @@ void Scene::InitializeScene()
 
     // Scene is composed of sky, ground, sea, and ... models
     objectRoot->add(sky, Scale(500.0, 500.0, 500.0));
-  //  objectRoot->add(ground);
-  //  objectRoot->add(sea);
+    
+	
+	objectRoot->add(ground);
+    objectRoot->add(sea);
 
 
-  //objectRootNoTeapot->add(ground);
-  //objectRootNoTeapot->add(sea);
+  objectRootNoTeapot->add(ground);
+  objectRootNoTeapot->add(sea);
 
 
 
@@ -1095,7 +1097,7 @@ GLint imageUnit = 1;
 bindpoint = 0;
 
 //Ambient Occlusion Bilateral Blur
-/*
+
 
 ambientOcclusionBilateralBlurShader->Use();
 programId = ambientOcclusionBilateralBlurShader->programId;
@@ -1169,7 +1171,7 @@ ambientOcclusionBilateralBlurShader->Unuse();
 
 bindpoint++;
 
-*/
+
 
 
 

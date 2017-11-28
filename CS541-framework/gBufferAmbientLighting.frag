@@ -264,7 +264,7 @@ gl_FragColor.xyz = outColor.xyz;
 //Lin. Color Space & Tone Mapping
 
 
-gl_FragColor.xyz = texture2D(AOTexture,myPixelCoordinate).xyz;
+//gl_FragColor.xyz = texture2D(AOTexture,myPixelCoordinate).xyz;
 
 return;
 
@@ -394,8 +394,8 @@ return;
 	
 	
 	
-	
-	
+//	gl_FragColor.xyz = ambient;
+	gl_FragColor.xyz = vec3(0);
 	
 	
 	
