@@ -373,6 +373,8 @@ void Scene::InitializeScene()
 
 
 	glBindAttribLocation(ambientOcclusionShader->programId, 0, "vertex");
+	
+	
 	ambientOcclusionShader->LinkProgram();
 
 
@@ -436,7 +438,7 @@ void Scene::InitializeScene()
 
 	gBufferAmbientLighting->LinkProgram();
 	
-
+	/*
 
 	basicOutputShader = new ShaderProgram();
 
@@ -448,7 +450,7 @@ void Scene::InitializeScene()
 
 	basicOutputShader->LinkProgram();
 
-
+	*/
 
 
 
@@ -1017,18 +1019,21 @@ int loc3, programId3;
 	//	glBindTexture(GL_TEXTURE_2D, 0);
 
 	*/
-
+//glViewport(0, 0, width, height);
+//glClearColor(0, 1, 0, 1.0);
+//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//glClear(GL_COLOR_BUFFER_BIT);
 
 
 //Ambient Occlusion pass
-
-ambientOcclusionShader->Use();
 ambientOcclusionTexture->Bind();
+ambientOcclusionShader->Use();
+
 
 glViewport(0, 0, width, height);
-glClearColor(0.5, 0.5, 0.5, 1.0);
-glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+glClear(GL_COLOR_BUFFER_BIT);
+glDisable(GL_BLEND);
+glDisable(GL_DEPTH_TEST);
 programId = ambientOcclusionShader->programId;
 
 
@@ -1074,12 +1079,97 @@ glUniform1i(loc, height);
 CHECKERROR;
 
 
-ambientOcclusionTexture->Unbind();
+FSQ->Draw(ambientOcclusionShader, Identity);
+
+
+
 ambientOcclusionShader->Unuse();
+ambientOcclusionTexture->Unbind();
 
 
 
 
+unsigned int blockID;
+int programID1, loc1, bindpoint;
+GLint imageUnit = 1;
+bindpoint = 0;
+
+//Ambient Occlusion Bilateral Blur
+/*
+
+ambientOcclusionBilateralBlurShader->Use();
+programId = ambientOcclusionBilateralBlurShader->programId;
+//blockID++;
+//GLuint blockID;
+glGenBuffers(1, &blockID); // Generates block
+						   //int	bindpoint = 3; // Start at zero, increment for other blocks
+
+loc = glGetUniformBlockIndex(programId, "blurKernel");
+glUniformBlockBinding(programId, loc, bindpoint);
+glBindBufferBase(GL_UNIFORM_BUFFER, bindpoint, blockID);
+glBufferData(GL_UNIFORM_BUFFER, kernelWidth * sizeof(float), (kernelWeights.data()), GL_STATIC_DRAW);
+CHECKERROR;
+
+
+
+loc = glGetUniformLocation(programId, "width");
+glUniform1i(loc, width);
+
+//		CHECKERROR;
+
+loc = glGetUniformLocation(programId, "height");
+glUniform1i(loc, height);
+CHECKERROR;
+
+
+
+loc = glGetUniformLocation(programId, "w");
+glUniform1i(loc, kernelWidth / 2);
+CHECKERROR;
+imageUnit++;
+
+
+loc = glGetUniformLocation(programId, "src");
+glBindImageTexture(imageUnit, ambientOcclusionTexture->texture, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
+glUniform1i(loc, imageUnit);
+// Change GL_READ_ONLY to GL_WRITE_ONLY for output image
+// Change GL_R32F to GL_RGBA32F for 4 channel images
+CHECKERROR;
+imageUnit++;
+CHECKERROR;
+loc = glGetUniformLocation(programId, "dst");
+//	glBindImageTexture(imageUnit, shadowBlurPureTexture->textureId, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+glBindImageTexture(imageUnit, ambientOcclusionBlurredTexture->texture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
+glUniform1i(loc, imageUnit);
+CHECKERROR;
+
+
+glActiveTexture(GL_TEXTURE6);
+glBindTexture(GL_TEXTURE_2D, gBuffer->renderTargets[0]);
+loc1 = glGetUniformLocation(programId, "gBuffer0");
+glUniform1i(loc1, 6);
+
+
+
+
+glActiveTexture(GL_TEXTURE9);
+glBindTexture(GL_TEXTURE_2D, gBuffer->renderTargets[3]);
+loc1 = glGetUniformLocation(programId, "gBuffer3");
+glUniform1i(loc1, 9);
+
+
+
+glDispatchCompute(width / 128, height, 1);
+
+
+
+ambientOcclusionBilateralBlurShader->Unuse();
+
+
+
+bindpoint++;
+
+*/
 
 
 
@@ -1210,7 +1300,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			
 			
 
-			unsigned int id1, bindpoint1;
+		//	unsigned int id1, bindpoint1;
 		//	glGenBuffers(1, &id1);
 		//	bindpoint1 = 4;
 		//	glBindBufferBase(GL_UNIFORM_BUFFER, bindpoint1, id1);
@@ -1249,7 +1339,6 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glDisable(GL_BLEND);
 			glEnable(GL_DEPTH_TEST);
 
-			int loc1, programID1;
 
 			programID1 = shadowProgram->programId;
 			loc1 = glGetUniformLocation(programID1, "ShadowProj");
@@ -1338,9 +1427,9 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		//	shadowBlurPureTexture->Bind();
 			CHECKERROR;
 
-			GLuint blockID;
+			//GLuint blockID;
 			glGenBuffers(1, &blockID); // Generates block
-			int	bindpoint = 0; // Start at zero, increment for other blocks
+			//int	bindpoint = 0; // Start at zero, increment for other blocks
 				loc = glGetUniformBlockIndex(programId, "blurKernel");
 				glUniformBlockBinding(programId, loc, bindpoint);
 				glBindBufferBase(GL_UNIFORM_BUFFER, bindpoint, blockID);
@@ -1348,7 +1437,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				CHECKERROR;
 
 
-				GLint imageUnit = 1;  //Increment for other images
+			  //Increment for other images
 				loc = glGetUniformLocation(programId, "src");
 				glBindImageTexture(imageUnit, shadowTexture->texture, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
 				glUniform1i(loc, imageUnit);
@@ -1385,86 +1474,6 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			shadowBlurComputeShader->Unuse();
 			CHECKERROR;
 
-
-
-
-
-
-
-
-
-
-			//Ambient Occlusion Bilateral Blur
-
-
-			ambientOcclusionBilateralBlurShader->Use();
-			programId = ambientOcclusionBilateralBlurShader->programId;
-			blockID++;
-			//GLuint blockID;
-			glGenBuffers(1, &blockID); // Generates block
-			//int	bindpoint = 3; // Start at zero, increment for other blocks
-			bindpoint++;
-			loc = glGetUniformBlockIndex(programId, "blurKernel");
-			glUniformBlockBinding(programId, loc, bindpoint);
-			glBindBufferBase(GL_UNIFORM_BUFFER, bindpoint, blockID);
-			glBufferData(GL_UNIFORM_BUFFER, kernelWidth * sizeof(float), (kernelWeights.data()), GL_STATIC_DRAW);
-			CHECKERROR;
-
-
-
-			loc = glGetUniformLocation(programId, "width");
-			glUniform1i(loc, width);
-
-			//		CHECKERROR;
-
-			loc = glGetUniformLocation(programId, "height");
-			glUniform1i(loc, height);
-			CHECKERROR;
-
-
-
-			loc = glGetUniformLocation(programId, "w");
-			glUniform1i(loc, kernelWidth / 2);
-			CHECKERROR;
-			imageUnit++;
-
-
-			loc = glGetUniformLocation(programId, "src");
-			glBindImageTexture(imageUnit, ambientOcclusionTexture->texture, 0, GL_FALSE, 0, GL_READ_ONLY, GL_RGBA32F);
-			glUniform1i(loc, imageUnit);
-			// Change GL_READ_ONLY to GL_WRITE_ONLY for output image
-			// Change GL_R32F to GL_RGBA32F for 4 channel images
-			CHECKERROR;
-			imageUnit++;
-			CHECKERROR;
-			loc = glGetUniformLocation(programId, "dst");
-			//	glBindImageTexture(imageUnit, shadowBlurPureTexture->textureId, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-			glBindImageTexture(imageUnit, ambientOcclusionBlurredTexture->texture, 0, GL_FALSE, 0, GL_WRITE_ONLY, GL_RGBA32F);
-			glUniform1i(loc, imageUnit);
-			CHECKERROR;
-
-
-			glActiveTexture(GL_TEXTURE6);
-			glBindTexture(GL_TEXTURE_2D, gBuffer->renderTargets[0]);
-			loc1 = glGetUniformLocation(programID1, "gBuffer0");
-			glUniform1i(loc1, 6);
-
-
-
-
-			glActiveTexture(GL_TEXTURE9);
-			glBindTexture(GL_TEXTURE_2D, gBuffer->renderTargets[3]);
-			loc1 = glGetUniformLocation(programID1, "gBuffer3");
-			glUniform1i(loc1, 9);
-
-			
-
-			glDispatchCompute(width / 128, height, 1);
-
-
-
-			ambientOcclusionBilateralBlurShader->Unuse();
-			
 
 
 

@@ -34,7 +34,7 @@ void main()
     gl_Position = WorldProj*WorldView*ModelTr*vertex;
     
     //worldPos = (ModelTr*vertex).xyz;
-	worldPos.xyz = (ModelTr*vertex).xyz;
+	worldPos = (ModelTr*vertex);
 	tangent = ModelTr * vec4(vertexTangent.xyz,0);
     normalVec = (vertexNormal*mat3(NormalTr)); 
     lightVec = lightPos - worldPos.xyz;

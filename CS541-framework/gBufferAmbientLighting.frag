@@ -264,7 +264,7 @@ gl_FragColor.xyz = outColor.xyz;
 //Lin. Color Space & Tone Mapping
 
 
-
+gl_FragColor.xyz = texture2D(AOTexture,myPixelCoordinate).xyz;
 
 return;
 
@@ -385,9 +385,12 @@ return;
 		float AO = max(0, pow((1-AOScale*texture2D(AOTexture,myPixelCoordinate).x),AOContrast ));
 		outColor.xyz *= vec3(AO);
 		
-		gl_FragColor.xyz = outColor;
+	//	gl_FragColor.xyz = outColor;
 	
+	//gl_FragColor.xyz = vec3(AO);
 	
+
+	gl_FragColor.xyz = texture2D(AOTexture,myPixelCoordinate).xyz;
 	
 	
 	

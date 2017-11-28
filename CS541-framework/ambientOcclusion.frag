@@ -16,6 +16,7 @@ const int     rPicId	= 8;
 const int     teapotId	= 9;
 const int     spheresId	= 10;
 const float PI = 3.1415926535897932384626433832795;
+const float EPSILON = 0.01;
 //in vec3 normalVec, lightVec;
 //in vec2 texCoord;
 
@@ -33,7 +34,7 @@ float SpiralPseudoRandom(int x,  int y)
 uniform float rangeOfInfluence;  //Ambient occlusion R
 float aOC = 0.1*rangeOfInfluence;
  float aOCSquared = aOC*aOC;
- float ambientOcclusionThreshold = 0.001;
+ float ambientOcclusionThreshold = 0.01;
 
 
 uniform sampler2D gBuffer0;  //WorldPos.xyz, worldPosDepth
@@ -60,7 +61,7 @@ void main()
     
     gl_FragColor.xyz = vec3(0.5,0.5,0.5)*Kd + Kd*max(dot(L,N),0.0);
 	*/
-
+	
 		vec2 myPixelCoordinate = vec2(gl_FragCoord.x/ width, gl_FragCoord.y/height);  
 
 	vec3 worldPos = texture2D(gBuffer0,myPixelCoordinate).xyz;
@@ -82,15 +83,25 @@ void main()
 	vec2 otherPixelCoord = myPixelCoordinate + h*(cos(theta), sin(theta));
 	vec3 otherPos = texture2D(gBuffer0,otherPixelCoord).xyz;
 	float otherDepth = texture2D(gBuffer0,otherPixelCoord).w;
+
+	//if(  otherDepth == worldPosDepth   )//abs(otherDepth-worldPosDepth) < EPSILON)
+	//{
+	//gl_FragColor.xyz = vec3(0,0,1);
+	//return;
+	//}
+
+
 	//vec3 otherNorm = 
 	vec3 wI = otherPos - worldPos;
 
-	if(rangeOfInfluence < length(wI))
+	if(rangeOfInfluence > length(wI))
 	{
 	
 	o = o + (max(0,dot(N,wI)- ambientOcclusionThreshold*otherDepth)) / max(aOCSquared,dot(wI,wI));
-
+	//gl_FragColor.xyz = vec3(1,0,1);
+	//return;
 	}
+
 
 
 	
@@ -98,8 +109,16 @@ void main()
 
 
 	o  = o * (2*PI*aOC)/NumSamples;
+	gl_FragColor.xyz = vec3(o*100);
 
-	gl_FragData[0].xyzw = vec4(o);
 
 
+	//gl_FragColor.xyz = vec3(worldPosDepth, 0,0);
+	//gl_FragColor.xyz = vec3(1,1,0);
+	//gl_FragColor.xyz = vec3(0);
+	//gl_FragColor.xyz = vec3(1,0,0);  
+	
+
+
+	//gl_FragColor.xyz=vec3(1,0,0);
 }
