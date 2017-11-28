@@ -914,7 +914,7 @@ void Scene::DrawScene()
 		loc2 = glGetUniformLocation(programId2, "ShadowMatrix");
 		glUniformMatrix4fv(loc2, 1, GL_TRUE, ShadowMatrix.Pntr());
 
-
+		//aa
 		glActiveTexture(GL_TEXTURE2);
 		glBindTexture(GL_TEXTURE_2D, shadowTexture->texture);
 
