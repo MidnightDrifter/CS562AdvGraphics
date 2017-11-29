@@ -105,8 +105,8 @@ public:
 	Object* localLights;
 	int numLocalLights = 1000;
 	float localLightRadius = 30.f;  //Likely assume that, for each light, their sphere of influence is approx. their radius or some multiple of it
-	int shadowConstant = 60;  //C value for exponential shadow map
-	vec3 lightColor = vec3(PI, PI, PI);
+	
+	vec3 lightColor = vec3(4 * PI);// , PI, PI);
 	vec3 localLightColor = vec3(PI , PI/8 ,PI/8  ); /// vec3(numLocalLights, numLocalLights, numLocalLights);
 	  //So much reorganizing!
 									
@@ -124,9 +124,11 @@ public:
 	Texture* HDRskydome;
 	Texture* irradianceMap;
 
-	const float minDepth = 0.1f;
+	const float minDepth = 10.f;
 
-	const float maxDepth = 1000.f;
+	const float maxDepth = 100.f;
+
+	int shadowConstant = 60;  //C value for exponential shadow map
 
 	Object* FSQ;
 

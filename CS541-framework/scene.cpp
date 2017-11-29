@@ -1398,11 +1398,11 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			CHECKERROR;
 			loc1 = glGetUniformLocation(programID1, "minDepth");
-			glUniform1f(loc1, minDepth);
+			glUniform1f(loc1, Scene::minDepth);
 
 
 			loc1 = glGetUniformLocation(programID1, "maxDepth");
-			glUniform1f(loc1, maxDepth);
+			glUniform1f(loc1, Scene::maxDepth);
 			// Compute any continuously animating objects
 			CHECKERROR;
 			glEnable(GL_CULL_FACE);
@@ -1459,11 +1459,11 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 				glUniform1i(loc, kernelWidth / 2);
 				CHECKERROR;
 				loc = glGetUniformLocation(programId, "minDepth");
-				glUniform1f(loc, minDepth);
+				glUniform1f(loc, Scene::minDepth);
 				CHECKERROR;
 
 				loc = glGetUniformLocation(programId, "maxDepth");
-				glUniform1f(loc, maxDepth);
+				glUniform1f(loc, Scene::maxDepth);
 				CHECKERROR;
 
 				loc = glGetUniformLocation(programId, "c");
@@ -1515,9 +1515,9 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
 			glActiveTexture(GL_TEXTURE3);
-		//	glBindTexture(GL_TEXTURE_2D, shadowTexture->texture);
+			glBindTexture(GL_TEXTURE_2D, shadowTexture->texture);
 		//	glBindTexture(GL_TEXTURE_2D, shadowBlurPureTexture->textureId);
-			glBindTexture(GL_TEXTURE_2D, blurredShadowTexture->texture);
+		//	glBindTexture(GL_TEXTURE_2D, blurredShadowTexture->texture);
 			CHECKERROR;
 			
 			loc = glGetUniformLocation(programId, "shadowTexture");
