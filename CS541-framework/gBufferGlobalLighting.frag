@@ -180,7 +180,7 @@ gl_FragColor.xyz = shadowFactor * LN*Light*BRDF(N,L,V,shininess,specular, diffus
 //gl_FragColor.xyz = vec3(log(texture2D(shadowTexture,shadowIndex).w)/100);
 
 //Comment this out to turn global lights & shadows back on
-//gl_FragColor.xyz = vec3(0);
+gl_FragColor.xyz = vec3(0);
 
 return;
 

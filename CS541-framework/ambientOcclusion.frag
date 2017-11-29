@@ -94,7 +94,7 @@ void main()
 	//vec3 otherNorm = 
 	vec3 wI = otherPos - worldPos;
 
-	if(rangeOfInfluence > length(wI))
+	if(rangeOfInfluence >= length(wI))
 	{
 	
 	o = o + (max(0,dot(N,wI)- ambientOcclusionThreshold*otherDepth)) / max(aOCSquared,dot(wI,wI));
@@ -109,7 +109,7 @@ void main()
 
 
 	o  = o * (2*PI*aOC)/NumSamples;
-	gl_FragColor.xyz = vec3(o*100);
+	gl_FragColor = vec4(o);
 
 
 

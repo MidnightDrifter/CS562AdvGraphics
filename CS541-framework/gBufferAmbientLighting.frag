@@ -385,17 +385,17 @@ return;
 		float AO = max(0, pow((1-AOScale*texture2D(AOTexture,myPixelCoordinate).x),AOContrast ));
 		outColor.xyz *= vec3(AO);
 		
-	//	gl_FragColor.xyz = outColor;
+		gl_FragColor.xyz = outColor;
 	
 	//gl_FragColor.xyz = vec3(AO);
 	
 
-	gl_FragColor.xyz = texture2D(AOTexture,myPixelCoordinate).xyz;
+//	gl_FragColor.xyz = texture2D(AOTexture,myPixelCoordinate).xyz;
 	
 	
 	
 //	gl_FragColor.xyz = ambient;
-	gl_FragColor.xyz = vec3(0);
+//	gl_FragColor.xyz = vec3(0);
 	
 	
 	
