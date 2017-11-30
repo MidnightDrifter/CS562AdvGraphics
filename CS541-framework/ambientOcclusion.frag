@@ -34,7 +34,7 @@ float SpiralPseudoRandom(int x,  int y)
 uniform float rangeOfInfluence;  //Ambient occlusion R
 float aOC = 0.1*rangeOfInfluence;
  float aOCSquared = aOC*aOC;
- float ambientOcclusionThreshold = 0.01;
+ float ambientOcclusionThreshold = 0.005;
 
 
 uniform sampler2D gBuffer0;  //WorldPos.xyz, worldPosDepth
