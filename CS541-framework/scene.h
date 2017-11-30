@@ -124,9 +124,9 @@ public:
 	Texture* HDRskydome;
 	Texture* irradianceMap;
 
-	const float minDepth = 10.f;
+	const float minDepth = 5.f;
 
-	const float maxDepth = 100.f;
+	const float maxDepth = 200.f;
 
 	int shadowConstant = 60;  //C value for exponential shadow map
 

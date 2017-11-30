@@ -1515,9 +1515,9 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
 			glActiveTexture(GL_TEXTURE3);
-			glBindTexture(GL_TEXTURE_2D, shadowTexture->texture);
+		//	glBindTexture(GL_TEXTURE_2D, shadowTexture->texture);
 		//	glBindTexture(GL_TEXTURE_2D, shadowBlurPureTexture->textureId);
-		//	glBindTexture(GL_TEXTURE_2D, blurredShadowTexture->texture);
+			glBindTexture(GL_TEXTURE_2D, blurredShadowTexture->texture);
 			CHECKERROR;
 			
 			loc = glGetUniformLocation(programId, "shadowTexture");
