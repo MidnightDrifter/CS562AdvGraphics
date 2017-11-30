@@ -18,7 +18,7 @@
 #include "fbo.h"
 #include <vector>
 
-#define HammersleyN 30
+#define HammersleyN 25
 
 struct basicVec3;
 
@@ -139,6 +139,8 @@ public:
 	HamStruct HamBlock = HamStruct();
 	
 
+	int HamN = 25;
+
  //Full screen quad
 	//max(0, dot(centerNormal, currNormal)) * (1 / sqrt(2 * PI*s)) * (exp((-1 * pow(currDepth - centerDepth, 2)) / (2 * s)))
     //void append(Object* m) { objects.push_back(m); }
@@ -146,12 +148,12 @@ public:
 	int irradianceWidth = 400;
 	int irradianceHeight = 200;
 
-	float exposure = 20.f;
+	float exposure =15.f;
 	float contrast = 1.f;
 
-	const vec3 teapotSpecular = vec3(0.9, 0.75,0);
-	const vec3 teapotDiffuse = vec3(0.1);
-	const float teapotShininess = 420;
+	const vec3 teapotSpecular = vec3(1, 0.75,0);
+	const vec3 teapotDiffuse = vec3(0);
+	const float teapotShininess = 2000;
 
 
 	const float rangeOfInfluence = 10.f;

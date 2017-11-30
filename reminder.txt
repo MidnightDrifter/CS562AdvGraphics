@@ -1,0 +1,3 @@
+Proj2:  mess w/ C val & min & max depths
+Proj3:  check that wK is calculated correctly, then slowly increment # of loops and check for superimposed images
+Proj4:  make sure ambient occlusion calculated correctly

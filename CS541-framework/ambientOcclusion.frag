@@ -109,7 +109,7 @@ void main()
 
 
 	o  = o * (2*PI*aOC)/NumSamples;
-	gl_FragColor = vec4(o);
+	gl_FragColor = vec4(1-o);
 
 
 

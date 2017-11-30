@@ -93,7 +93,7 @@ Object* SphereOfSpheres(Shape* SpherePolygons)
             vec3 color = HSV2RGB(angle/360.0, 1.0f-2.0f*row/PI, 1.0f);
 
             Object* sp = new Object(SpherePolygons, spheresId,
-                                    color, vec3(1.0, 1.0, 1.0), 6.0);
+                                    color, vec3(1.0, 1.0, 1.0), 1.0);
             float s = sin(row);
             float c = cos(row);
             ob->add(sp, Rotate(2,angle)*Translate(c,0,s)*Scale(0.075*c,0.075*c,0.075*c));
@@ -561,8 +561,8 @@ void Scene::InitializeScene()
     objectRoot->add(sky, Scale(500.0, 500.0, 500.0));
     
 	
-	objectRoot->add(ground);
-    objectRoot->add(sea);
+//	objectRoot->add(ground);
+//    objectRoot->add(sea);
 
 
   objectRootNoTeapot->add(ground);
@@ -1293,7 +1293,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 			glUniform1i(loc, HDRskydome->HDRheight);
 
 			loc = glGetUniformLocation(programId, "HamN");
-			int t = HammersleyN;
+			int t = HamN;
 			glUniform1i(loc, t);
 
 			//End 'pass gBuffer to specified shader' block	
@@ -1579,11 +1579,11 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//		CHECKERROR;
 
 			loc1 = glGetUniformLocation(programId, "minDepth");
-			glUniform1f(loc1, Scene::minDepth);
+			glUniform1f(loc1, minDepth);
 			CHECKERROR;
 
 			loc1 = glGetUniformLocation(programId, "maxDepth");
-			glUniform1f(loc1, Scene::maxDepth);
+			glUniform1f(loc1, maxDepth);
 			CHECKERROR;
 
 			loc1 = glGetUniformLocation(programId, "c");

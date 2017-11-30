@@ -203,7 +203,7 @@ void main()
 
 	vec3 worldPos = texture2D(gBuffer0,myPixelCoordinate).xyz;
 		
-		vec3 V = normalize((WorldInverse * vec4(0.f, 0.f, 0.f, 1.f)).xyz-worldPos);
+		vec3 V = normalize(( WorldInverse * vec4(0.f, 0.f, 0.f, 1.f)).xyz - worldPos);
 vec3 outColor = vec3(0,0,0);
 //vec3 inColor = texture2D(skydomeTexture, skyTexCoord).xyz;
 //inColor = pow(inColor, vec3(2.2));
@@ -274,7 +274,6 @@ return;
 
 
 
-
 }
 
 
@@ -291,16 +290,23 @@ return;
 		//float gValue = 1 / (pow(LH,2)*4);   //Raised to power of 2, no need to care about negative vals -- maybe div. by 0 though
 
 
-		for(int i =0; i<HamN;i++)
+		for(int i =1; i<=HamN;i++)
 		{
 		vec2 randTexCoord = Hammersley(i,HamN);   // vec2(hammersley[i], hammersley[i+1]);
-	  	randTexCoord.y = (  acos(  pow(randTexCoord.y, (1/(shininess+1)  )  )  )  )/PI;
+	  	randTexCoord.y =   acos(  pow(randTexCoord.y,  ( 1/(shininess+1) /PI)   )  );
+		//randTexCoord.y =   acos(  pow(randTexCoord.y,  ( 1/(shininess+1) )   )  )/PI;
 		
+		
+		// vec3(0,0,0);
 		vec3 L = normalize( vec3(    cos(   2*PI*(0.5-randTexCoord.x)  )   *  sin(  PI*randTexCoord.y  )    ,    sin(2*PI*(0.5-randTexCoord.x))*   sin(PI*randTexCoord.y)    ,      cos(PI*randTexCoord.y)	)   );
-		vec3 wK = normalize(L.x * A + L.y * B + L.z * R);
+		//L.x = cos( 2 * PI * (0.5-randTexCoord.x) ) * sin(PI * randTexCoord.y);
+	//	L.y = sin( 2 * PI * (0.5-randTexCoord.x) ) * sin(PI * randTexCoord.y);
+		//L.z = cos(PI * randTexCoord.y);
+		L = normalize(L);
+		vec3 wK = normalize(  (L.x * A) + (L.y * B) + (L.z * R)  );
 
 		vec2 wKTexCoord = vec2(0.5-(atan(wK.y,wK.x)/(2*PI)), acos(wK.z)/PI);
-
+		//vec2 wKTexCoord = vec2(0.5-(atan(R.y,R.x)/(2*PI)), acos(R.z)/PI);
 		//vec2 LTexCoord =  vec2(0.5-(atan(L.y,L.x)/(2*PI)), acos(L.z)/PI);
 
 
@@ -308,15 +314,15 @@ return;
 	//	float dLog = log2(1.0*width*height/HamN);
 
 	//Using SCREEN SPACE width & height
-	//	float	level = (  (0.5)* log2(1.0*width*height/HamN)  ) - ( 0.5* log2(dValue(wK,V,N,shininess)/4)   ) ;  //Check this--might use L instead of wK
-
+		float	level = (  (0.5)* log2(1.0*width*height/HamN)  ) - ( 0.5* log2(dValue(wK,V,N,shininess)/4)   ) ;  //Check this--might use L instead of wK
+	//	level =0;
 	
 			//Using HDR dimensions
-		float level = (  (0.5)* log2(1.0*skyWidth*skyHeight/HamN)  ) - ( 0.5* log2(dValue(wK,V,N,shininess)/4)   ) ;  //Check this--might use L instead of wK
+	//	float level = (  (0.5)* log2(1.0*skyWidth*skyHeight/HamN)  ) - ( 0.5* log2(dValue(wK,V,N,shininess)/4)   ) ;  //Check this--might use L instead of wK
 
 	
 		vec3 lightIntensity = textureLod(skydomeTexture, wKTexCoord,level).xyz;   //Check this line later--might need to raise to that 2.2 power
-		//lightIntensity = texture(skydomeTexture,wKTexCoord).xyz;
+	//	lightIntensity = texture(skydomeTexture,wKTexCoord).xyz;
 		lightIntensity = pow(lightIntensity,vec3(2.2));
 
 
@@ -329,10 +335,10 @@ return;
 
 
 
-		//monteCarloSum /= vec3(HamN);   //Specular bit!!
-		monteCarloSum.x /= (2*HamN);
-		monteCarloSum.y /= (2*HamN);
-		monteCarloSum.z /= (2*HamN);
+	//	monteCarloSum /= vec3(3*HamN);   //Specular bit!!
+		monteCarloSum.x /= (HamN);
+		monteCarloSum.y /= (HamN);
+		monteCarloSum.z /= (HamN);
 
 
 
@@ -383,7 +389,7 @@ return;
 		
 		
 		float AO = max(0, pow((1-AOScale*texture2D(AOTexture,myPixelCoordinate).x),AOContrast ));
-		outColor.xyz *= vec3(AO);
+		//outColor.xyz *= vec3(AO);
 		
 		gl_FragColor.xyz = outColor;
 	
