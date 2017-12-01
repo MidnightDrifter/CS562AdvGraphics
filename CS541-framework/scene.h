@@ -133,7 +133,7 @@ public:
 	Object* FSQ;
 
 	const float e = 2.7182818284590452353602874713527;
-	const static int kernelWidth = 25;
+	const static int kernelWidth = 4;
 	const int s = kernelWidth / 2;
 	std::vector<float> kernelWeights;
 
