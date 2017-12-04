@@ -156,11 +156,11 @@ public:
 	const float teapotShininess = 2000;
 
 
-	const float rangeOfInfluence = 1.f;
+	const float rangeOfInfluence = 1.25f;
 	const int numSamples = 13;
 	const int AOSampleNum = 7;
-	const float AOContrast = 1.f;
-	const float AOScale = 1.f;
+	const float AOContrast = 1.15f;
+	const float AOScale = 1.15f;
 
     void InitializeScene();
     void DrawScene();
