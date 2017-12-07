@@ -19,6 +19,13 @@ const float EPSILON = 0.01;
 const float PI = 3.1415926535897932384626433832795;
 const float e = 2.7182818284590452353602874713527;
 
+
+
+
+
+uniform sampler2D parallaxMap;  //Exactly what it says on the tin
+
+
 in vec3 normalVec, lightVec;
 //in vec2 texCoord;
 //in vec4 shadowCoord;

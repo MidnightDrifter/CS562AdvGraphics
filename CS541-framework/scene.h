@@ -124,6 +124,10 @@ public:
 	Texture* HDRskydome;
 	Texture* irradianceMap;
 
+
+	Texture* parallaxMap;
+
+
 	const float minDepth = 5.f;
 
 	const float maxDepth = 200.f;
