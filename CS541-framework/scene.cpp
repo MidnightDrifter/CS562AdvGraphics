@@ -1224,6 +1224,7 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			glActiveTexture(GL_TEXTURE12);
 			glBindTexture(GL_TEXTURE_2D, ambientOcclusionBlurredTexture->texture);
+			//glBindTexture(GL_TEXTURE_2D, ambientOcclusionTexture->texture);
 			loc = glGetUniformLocation(programId, "AOTexture");
 			glUniform1i(loc, 12);
 

@@ -22,7 +22,7 @@ layout(rgba32f, binding =2) uniform writeonly image2D dst; // dst image as singl
 
 shared float v[128+101]; // Variable shared with other threads in the 128x1 thread group
 const float PI = 3.1415926535897932384626433832795;
-const float s = 0.01;
+const float s = 0.1;
 uniform int width, height;
 
 uniform sampler2D gBuffer0;  //WorldPos.xyz, worldPosDepth
