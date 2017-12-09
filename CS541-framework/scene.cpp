@@ -196,7 +196,8 @@ void Scene::InitializeScene()
 		kernelWeights[i] = kernelWeights[i]/ sum;
 	}
 
-
+	parallaxMap = new Texture("textures//DisplacementMap.png");
+	normalMap = new Texture("textures//NormalMap.png");
 
 	//Proj. 3 Hammersley points -- generate them once at the start, or make them each and every pass?
 	
@@ -836,6 +837,15 @@ void Scene::DrawScene()
 		glUniform1i(loc, 5);
 
 
+		glActiveTexture(GL_TEXTURE13);
+		glBindTexture(GL_TEXTURE_2D, parallaxMap->textureId);
+		loc = glGetUniformLocation(programId, "parallaxMap");
+		glUniform1i(loc, 13);
+
+		glActiveTexture(GL_TEXTURE14);
+		glBindTexture(GL_TEXTURE_2D, normalMap->textureId);
+		loc = glGetUniformLocation(programId, "normalMap");
+		glUniform1i(loc, 14);
 
 
 
@@ -1221,6 +1231,10 @@ glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 			loc = glGetUniformLocation(programId, "AOContrast");
 			glUniform1f(loc, AOContrast);
+
+
+
+
 
 			glActiveTexture(GL_TEXTURE12);
 			glBindTexture(GL_TEXTURE_2D, ambientOcclusionBlurredTexture->texture);

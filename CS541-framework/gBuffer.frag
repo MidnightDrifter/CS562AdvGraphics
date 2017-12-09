@@ -1,4 +1,4 @@
-/////////////////////////////////////////////////////////////////////////
+﻿/////////////////////////////////////////////////////////////////////////
 // Pixel shader for lighting
 ////////////////////////////////////////////////////////////////////////
 #version 330
@@ -37,7 +37,8 @@ uniform vec3 Ambient; // Ia
 //uniform sampler2D reflectionTextureTop; //top reflection
 //uniform sampler2D reflectionTextureBot; //bot reflection
 //uniform sampler2D skydomeTexture; //skydome tex
-//uniform sampler2D normalMap; //normal map
+uniform sampler2D normalMap; //normal map
+uniform sampler2D parallaxMap;
 //uniform sampler2D bricksTexture; //brick color tex
 
 
@@ -300,6 +301,154 @@ outLight = skyColor; //  Check this  ???
 
 }
 */
+
+
+
+
+
+	//PARALLAX MAPPING GOES HERE
+
+	if(objectId == boxId)
+	{
+	vec3 V = normalize(eyeVec);
+	//mat3 TBN;
+	vec3 tanNorm = normalize(tangent.xyz);
+	vec3 normCopy = N;
+	//TBN[0][0]=tanNorm.x;
+	//TBN[0][1]=tanNorm.y;
+	//TBN[0][2]=tanNorm.z;
+	
+	
+	//TBN[2][0] = N.x;
+	//TBN[2][1]=N.y;
+	//TBN[2][2]=N.z;
+	
+	
+	vec3 cr = normalize(cross(tanNorm,N));  //tanNorm));
+	//TBN[1][0] = cr.x;
+	//TBN[1][1]=cr.y;
+	//TBN[1][2]=cr.z;
+
+
+
+	mat3 TBN = mat3(tanNorm,cr,normCopy);
+
+	int NUM_ATTEMPTS =30;
+	float STEP_SIZE = 1.0/NUM_ATTEMPTS;
+
+	mat3 TBNinv = inverse(TBN);
+	vec3 transformedViewRay = TBNinv*V;
+	vec3 texC = vec3(texCoord,0);
+	
+
+	for(int i=1;i<=NUM_ATTEMPTS;i++)  //Arbitrarily choose 30 steps--very small ones
+	{
+	vec3 depthTest = texC + (i*STEP_SIZE)*transformedViewRay;
+
+	if(depthTest.z - texture2D(parallaxMap,depthTest.xy).x >=0 && depthTest.z - texture2D(parallaxMap,depthTest.xy).x < EPSILON)
+	{
+	
+	N = 2.0*(texture2D(normalMap, depthTest.xy).xyz) - vec3(1,1,1);
+	N = N.x * tanNorm  + N.y * cr + N.z *normCopy;  //normalize( TBN*N);
+
+	i=31;
+	
+	
+	//Look up other textures here as needed
+	
+	}
+	
+	
+	}
+
+
+	
+	/*
+
+	[... T ...]
+	[... B ...]
+	[... N ...]    go INTO texture space, so this is TBNinv
+
+
+	[... ... ...]
+	[T    B   N ]
+	[... ... ...]  TBN as COLUMNS to go OUT of texture space, so this is TBN
+
+	I think
+	Maybe
+
+
+
+
+
+
+
+	Normal map: A normal map is a texture whose RGB
+components encode a unit length normal by squeezing the
+−1⋯+1 range of unit normals into the 0⋯1 range of
+colors. Thus the normal vector (0,0,1) encodes as color
+(0.5, 0.5, 1.0) accounting for the characteristic light blue
+color of normal maps. When coloring a pixel, modify the
+normal N to ̄N and use ̄N for lighting calculations:
+
+
+(a , b , c) =( lookup normal-map at uv )∗2.0 −( 1,1,1) // Convert to−1⋯+1
+̄N = a∗T +b∗B+c∗N // For tangent T , bi-normal B=T×N , and normal N (all unit length)
+For this feature to work well, you need a texture-map and normal-map pair that match each other.
+The ChippedRedBricks pair shown here and distributed with the framework work well, but many
+others can be found on the Internet.
+
+
+
+This is for simply reading from the Normal Map!!!!!
+
+
+T = tangent vector
+N = normal vector as usual
+B = T x N  // That's a cross product
+
+
+Matrix TBN is composed of those three vectors as rows.
+ [... T ...]
+[... B ...]
+[... N ...]
+
+It transforms a column vector, say the view vector V into texture
+space
+  V' = TBN * V
+where the X coordinate is the texture u parameter, Y is the texture v
+parameter, and Z is the height.
+
+
+
+
+
+The pixel shader is fired up with a texture coordinate (u,v). You transform the view vector into texture space (via the TBN) to get a 3d vector (a,b,c) in texture space.  Now stepping along the view vector by some amount t is
+    (u,v,0) + t*(a,b,c).
+The first two coordinates, (u,v) + t*(a,b), are a new texture coordinate, and the third coordinate, t*c, is the height of the view ray at that texture coordinate.  You compare that height with the height from the texture map at that coordinate and decide to continue the search to other t's or not.
+
+
+
+	*/
+	
+	
+	
+	
+	
+	
+	}
+
+
+	//PARALLAX MAPPING ENDS HERE
+
+
+
+
+
+
+
+
+
 float depth = worldPos.w;
    gl_FragData[0] =  vec4(worldPos.xyz,depth);  //vec4(worldPos.xyz, worldPosDepth);
     gl_FragData[1] = vec4(specular.xyz, shininess);

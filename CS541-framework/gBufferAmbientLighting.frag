@@ -19,7 +19,7 @@ const float PI = 3.1415926535897932384626433832795;
 //in vec3 normalVec, lightVec;
 //in vec2 texCoord;
 in vec3 eyeVec;
-
+in vec4 tangent;
 //uniform int objectId;
 //uniform vec3 diffuse;
 
@@ -32,6 +32,11 @@ uniform sampler2D gBuffer3;  //normalVec.xyz
 uniform sampler2D skydomeTexture;
 uniform sampler2D irradianceMap;
 uniform sampler2D AOTexture;
+
+
+
+uniform sampler2D parallaxMap;
+
 
 uniform int HamN;
 //uniform sampler2D 
@@ -173,7 +178,7 @@ void main()
  	vec2 myPixelCoordinate = vec2(gl_FragCoord.x/width, gl_FragCoord.y/height);  //I forget the call for this fug
 	//gl_FragColor.xy = myPixelCoordinate;
 	//return;
-//	vec3 worldPos = texture2D(gBuffer0,myPixelCoordinate).xyz;
+	vec3 worldPos = texture2D(gBuffer0,myPixelCoordinate).xyz;
 //	float  worldPosDepth = texture2D(gBuffer0,myPixelCoordinate).w;
 	
 	vec3 specular = texture2D(gBuffer1, myPixelCoordinate).xyz;
@@ -182,6 +187,10 @@ void main()
   	vec3 diffuse = texture2D(gBuffer2, myPixelCoordinate).xyz;
 	//vec3 L = normalize(lightVec);
 	vec3 N = normalize(texture2D(gBuffer3,myPixelCoordinate).xyz);
+
+			vec3 V = normalize(( WorldInverse * vec4(0.f, 0.f, 0.f, 1.f)).xyz - worldPos);  //Maybe don't normalize this?
+
+
 	//float LN = max(dot(L,N),0.0f);
 
 
@@ -201,9 +210,9 @@ void main()
 
 //	vec2 myPixelCoordinate = vec2(gl_FragCoord.x/ width, gl_FragCoord.y/height);  
 
-	vec3 worldPos = texture2D(gBuffer0,myPixelCoordinate).xyz;
+//	vec3 worldPos = texture2D(gBuffer0,myPixelCoordinate).xyz;
 		
-		vec3 V = normalize(( WorldInverse * vec4(0.f, 0.f, 0.f, 1.f)).xyz - worldPos);
+
 vec3 outColor = vec3(0,0,0);
 //vec3 inColor = texture2D(skydomeTexture, skyTexCoord).xyz;
 //inColor = pow(inColor, vec3(2.2));
