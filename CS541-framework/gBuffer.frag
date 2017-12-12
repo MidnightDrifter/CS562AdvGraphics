@@ -333,7 +333,7 @@ outLight = skyColor; //  Check this  ???
 
 	mat3 TBN = mat3(tanNorm,cr,normCopy);
 
-	int NUM_ATTEMPTS =30;
+	int NUM_ATTEMPTS =50;
 	float STEP_SIZE = 1.0/NUM_ATTEMPTS;
 
 	mat3 TBNinv = inverse(TBN);
@@ -351,7 +351,7 @@ outLight = skyColor; //  Check this  ???
 	N = 2.0*(texture2D(normalMap, depthTest.xy).xyz) - vec3(1,1,1);
 	N = N.x * tanNorm  + N.y * cr + N.z *normCopy;  //normalize( TBN*N);
 
-	i=31;
+	i=NUM_ATTEMPTS+1;
 	
 	
 	//Look up other textures here as needed
