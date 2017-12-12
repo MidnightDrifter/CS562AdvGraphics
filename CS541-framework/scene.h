@@ -25,18 +25,18 @@ struct basicVec3;
 
 
 enum ObjectIds {
-    nullId	= 0,
-    skyId	= 1,
-    seaId	= 2,
-    groundId	= 3,
-    wallId	= 4,
-    boxId	= 5,
-    frameId	= 6,
-    lPicId	= 7,
-    rPicId	= 8,
-    teapotId	= 9,
-    spheresId	= 10,
-	localLightsId=11,
+	nullId = 0,
+	skyId = 1,
+	seaId = 2,
+	groundId = 3,
+	wallId = 4,
+	boxId = 5,
+	frameId = 6,
+	lPicId = 7,
+	rPicId = 8,
+	teapotId = 9,
+	spheresId = 10,
+	localLightsId = 11,
 };
 
 struct HamStruct {
@@ -50,26 +50,26 @@ class Shader;
 class Scene
 {
 public:
-    // Viewing transformation parameters (suggested) FIXME: This is a
-    // good place for the transformation values which are set by the
-    // user mouse/keyboard actions and used in DrawScene to create the
-    // transformation matrices.
+	// Viewing transformation parameters (suggested) FIXME: This is a
+	// good place for the transformation values which are set by the
+	// user mouse/keyboard actions and used in DrawScene to create the
+	// transformation matrices.
 
 	const float PI = 3.14159f;
-    ProceduralGround* ground;
+	ProceduralGround* ground;
 
-    // Light position parameters
-    float lightSpin, lightTilt, lightDist;
+	// Light position parameters
+	float lightSpin, lightTilt, lightDist;
 
-    vec3 basePoint;  // Records where the scene building is centered.
-    int mode; // Extra mode indicator hooked up to number keys and sent to shader
-    
-    // Viewport
-   // int width, height;
+	vec3 basePoint;  // Records where the scene building is centered.
+	int mode; // Extra mode indicator hooked up to number keys and sent to shader
+
+			  // Viewport
+			  // int width, height;
 	int width = 1024, height = 1024;
 	float speed = 10.0f;
 	bool isToggled = false;
-	
+
 	vec3 eyePos = vec3(0.f, 0.f, 0.f);
 
 	bool wPressed = false;
@@ -98,27 +98,27 @@ public:
 	const int shadowTextureWidth = 1024;
 	const int shadowTextureHeight = 1024;
 
-    // All objects in the scene are children of this single root object.
-    Object* objectRoot;
+	// All objects in the scene are children of this single root object.
+	Object* objectRoot;
 	Object* objectRootNoTeapot;
-    std::vector<Object*> animated;
+	std::vector<Object*> animated;
 	Object* localLights;
 	int numLocalLights = 1000;
 	float localLightRadius = 30.f;  //Likely assume that, for each light, their sphere of influence is approx. their radius or some multiple of it
-	
+
 	vec3 lightColor = vec3(4 * PI);// , PI, PI);
-	vec3 localLightColor = vec3(PI , PI/8 ,PI/8  ); /// vec3(numLocalLights, numLocalLights, numLocalLights);
-	  //So much reorganizing!
-									
-	// Shader programs
-    ShaderProgram* lightingProgram, *shadowProgram, *reflectionProgramTop, *reflectionProgramBot, *gBufferShader, *gBufferGlobalLighting, *gBufferAmbientLighting, *gBufferLocalLighting, *basicOutputShader, *shadowBlurComputeShader, *ambientOcclusionBilateralBlurShader, *ambientOcclusionShader;
+	vec3 localLightColor = vec3(PI, PI / 8, PI / 8); /// vec3(numLocalLights, numLocalLights, numLocalLights);
+													 //So much reorganizing!
+
+													 // Shader programs
+	ShaderProgram* lightingProgram, *shadowProgram, *reflectionProgramTop, *reflectionProgramBot, *gBufferShader, *gBufferGlobalLighting, *gBufferAmbientLighting, *gBufferLocalLighting, *basicOutputShader, *shadowBlurComputeShader, *ambientOcclusionBilateralBlurShader, *ambientOcclusionShader;
 
 	//FBOs
-	FBO* shadowTexture,* reflectionTextureTop,* reflectionTextureBot, *gBuffer, *screenOutput, *blurredShadowTexture, *ambientOcclusionTexture, *ambientOcclusionBlurredTexture;
+	FBO* shadowTexture, *reflectionTextureTop, *reflectionTextureBot, *gBuffer, *screenOutput, *blurredShadowTexture, *ambientOcclusionTexture, *ambientOcclusionBlurredTexture;
 
 	//Textures - testin'
 	Texture* test;
-	Texture *bricksNormalTexture,* bricksTexture, *skydome;
+	Texture *bricksNormalTexture, *bricksTexture, *skydome;
 	Texture* shadowBlurPureTexture;
 
 	Texture* HDRskydome;
@@ -141,13 +141,13 @@ public:
 	const int s = kernelWidth / 2;
 	std::vector<float> kernelWeights;
 
-	 int HammersleyN2 = HammersleyN;
+	int HammersleyN2 = HammersleyN;
 	HamStruct HamBlock = HamStruct();
-	
 
- //Full screen quad
+
+	//Full screen quad
 	//max(0, dot(centerNormal, currNormal)) * (1 / sqrt(2 * PI*s)) * (exp((-1 * pow(currDepth - centerDepth, 2)) / (2 * s)))
-    //void append(Object* m) { objects.push_back(m); }
+	//void append(Object* m) { objects.push_back(m); }
 
 	int irradianceWidth = 400;
 	int irradianceHeight = 200;
@@ -155,7 +155,7 @@ public:
 	float exposure = 20.f;
 	float contrast = 1.f;
 
-	const vec3 teapotSpecular = vec3(0.9, 0.75,0);
+	const vec3 teapotSpecular = vec3(0.9, 0.75, 0);
 	const vec3 teapotDiffuse = vec3(0.1);
 	const float teapotShininess = 420;
 
@@ -166,8 +166,8 @@ public:
 	const float AOContrast = 1.f;
 	const float AOScale = 1.f;
 
-    void InitializeScene();
-    void DrawScene();
+	void InitializeScene();
+	void DrawScene();
 
 	//void SphericalHarmonics();
 	void SphericalHarmonics(int w, int h, int x, int y, const std::vector<basicVec3>& v);
