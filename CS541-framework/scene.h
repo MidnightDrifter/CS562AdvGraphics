@@ -125,7 +125,7 @@ public:
 	Texture* irradianceMap;
 
 
-	Texture* parallaxMap;
+	Texture* parallaxMap, *normalMap;
 
 
 	const float minDepth = 5.f;
